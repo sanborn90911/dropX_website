@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../data/platforms.dart';
@@ -97,27 +98,76 @@ const List<List<String>> _mobileScreenshots = [
   ['assets/screenshots/mobile/5.png', 'assets/screenshots/mobile/6.png'],
 ];
 
-/// How long each screenshot stays up, and how long the crossfade takes.
-const Duration _slideInterval = Duration(seconds: 4);
-const Duration _fadeDuration = Duration(milliseconds: 1100);
+/// Slideshow pacing. Windows are numbered desktop left/right = 0/1, phone
+/// left/centre/right = 2/3/4. One shared schedule plays them in diagonal
+/// pairs so only one image is ever fading:
+///
+///   desktop left  → (1s after its fade ends) phone right
+///   desktop right → (1s after its fade ends) phone left
+///   phone centre on its own, then the round repeats.
+///
+/// Pairs and the centre turn are separated by a slightly longer rest. One
+/// round takes 15s, so each window changes every 15s.
+const int _fadeMs = 1400;
+const int _pairGapMs = 1000; // between a desktop change ending and its diagonal phone change
+const int _restMs = 2000; // between groups
+const Duration _fadeDuration = Duration(milliseconds: _fadeMs);
+const Curve _fadeCurve = Curves.easeInOutSine;
+const Duration _firstChangeDelay = Duration(seconds: 3);
 
-/// Windows are staggered evenly across one interval so they never change
-/// together: window n first changes at `interval + n * interval / count`.
-Duration _staggerFor(int window, int windowCount) => _slideInterval * window ~/ windowCount;
+/// (window, wait since the previous change started).
+const List<({int slot, Duration wait})> _schedule = [
+  (slot: 0, wait: Duration(milliseconds: _fadeMs + _restMs)), // desktop left
+  (slot: 4, wait: Duration(milliseconds: _fadeMs + _pairGapMs)), // phone right
+  (slot: 1, wait: Duration(milliseconds: _fadeMs + _restMs)), // desktop right
+  (slot: 2, wait: Duration(milliseconds: _fadeMs + _pairGapMs)), // phone left
+  (slot: 3, wait: Duration(milliseconds: _fadeMs + _restMs)), // phone centre
+];
 
-class _Screenshots extends StatelessWidget {
+/// The window whose turn it is; `seq` makes repeated turns still notify.
+typedef _SlideTurn = ({int seq, int slot});
+
+class _Screenshots extends StatefulWidget {
   const _Screenshots();
+
+  @override
+  State<_Screenshots> createState() => _ScreenshotsState();
+}
+
+class _ScreenshotsState extends State<_Screenshots> {
+  final _turn = ValueNotifier<_SlideTurn?>(null);
+  Timer? _timer;
+  int _step = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer(_firstChangeDelay, _nextTurn);
+  }
+
+  void _nextTurn() {
+    final seq = (_turn.value?.seq ?? 0) + 1;
+    _turn.value = (seq: seq, slot: _schedule[_step].slot);
+    _step = (_step + 1) % _schedule.length;
+    _timer = Timer(_schedule[_step].wait, _nextTurn);
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _turn.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final l = L10n.of(context);
     final wide = isWideLayout(context);
-    final windowCount = _desktopScreenshots.length + _mobileScreenshots.length;
+    final desktopCount = _desktopScreenshots.length;
     return LayoutBuilder(
       builder: (context, constraints) {
         final gap = wide ? 24.0 : 20.0;
         final maxWidth = constraints.maxWidth;
-        final desktopCount = _desktopScreenshots.length;
         // Desktop: side by side on wide screens; one per swipe on phones.
         final desktopWidth = wide ? ((maxWidth - gap * (desktopCount - 1)) / desktopCount) : maxWidth * 0.85;
         final mobileWidth = wide ? (maxWidth * 0.2).clamp(220.0, 300.0) : (maxWidth * 0.55).clamp(0.0, 240.0);
@@ -133,7 +183,8 @@ class _Screenshots extends StatelessWidget {
                     label: '${l.t('home.screenshot_desktop')} ${i + 1}',
                     width: desktopWidth,
                     aspect: 16 / 9,
-                    startDelay: _staggerFor(i, windowCount),
+                    turn: _turn,
+                    slot: i,
                   ),
               ],
             ),
@@ -148,7 +199,8 @@ class _Screenshots extends StatelessWidget {
                     label: '${l.t('home.screenshot_mobile')} ${i + 1}',
                     width: mobileWidth,
                     aspect: 9 / 16,
-                    startDelay: _staggerFor(desktopCount + i, windowCount),
+                    turn: _turn,
+                    slot: desktopCount + i,
                   ),
               ],
             ),
@@ -184,38 +236,57 @@ class _Gallery extends StatelessWidget {
   }
 }
 
-/// One screenshot window with its own timer: it crossfades to the next image
-/// every [_slideInterval], starting after [startDelay] so neighbouring
-/// windows change at different moments. Autoplay pauses while hovered, and
-/// the dots underneath jump straight to an image (restarting the countdown).
+/// One screenshot window. It advances only when [turn] names its [slot], and
+/// the new image fades in over the old one, which stays fully visible
+/// underneath, so there's no dip in brightness mid-transition. A hovered
+/// window skips its turn, and picking an image with the dots skips the
+/// window's next turn so it doesn't change straight after a click.
 class _SlideshowFrame extends StatefulWidget {
   final List<String> assets;
   final String label;
   final double width;
   final double aspect;
-  final Duration startDelay;
+  final ValueListenable<_SlideTurn?> turn;
+  final int slot;
 
   const _SlideshowFrame({
     required this.assets,
     required this.label,
     required this.width,
     required this.aspect,
-    this.startDelay = Duration.zero,
+    required this.turn,
+    required this.slot,
   });
 
   @override
   State<_SlideshowFrame> createState() => _SlideshowFrameState();
 }
 
-class _SlideshowFrameState extends State<_SlideshowFrame> {
+class _SlideshowFrameState extends State<_SlideshowFrame> with SingleTickerProviderStateMixin {
   int _index = 0;
+  int? _previous; // image underneath while the current one fades in
   bool _hovered = false;
-  Timer? _timer;
+  bool _skipNextTurn = false;
+
+  late final AnimationController _fade = AnimationController(vsync: this, duration: _fadeDuration, value: 1)
+    ..addStatusListener((status) {
+      if (status == AnimationStatus.completed && _previous != null) setState(() => _previous = null);
+    });
+  late final Animation<double> _opacity = CurvedAnimation(parent: _fade, curve: _fadeCurve);
 
   @override
   void initState() {
     super.initState();
-    _scheduleNext(_slideInterval + widget.startDelay);
+    widget.turn.addListener(_onTurn);
+  }
+
+  @override
+  void didUpdateWidget(_SlideshowFrame oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.turn != widget.turn) {
+      oldWidget.turn.removeListener(_onTurn);
+      widget.turn.addListener(_onTurn);
+    }
   }
 
   @override
@@ -229,29 +300,48 @@ class _SlideshowFrameState extends State<_SlideshowFrame> {
 
   @override
   void dispose() {
-    _timer?.cancel();
+    widget.turn.removeListener(_onTurn);
+    _fade.dispose();
     super.dispose();
   }
 
-  void _scheduleNext(Duration after) {
-    _timer?.cancel();
-    if (widget.assets.length < 2) return;
-    _timer = Timer(after, () {
-      if (!mounted) return;
-      if (!_hovered) setState(() => _index = (_index + 1) % widget.assets.length);
-      _scheduleNext(_slideInterval);
+  void _onTurn() {
+    if (widget.turn.value?.slot != widget.slot) return;
+    if (_skipNextTurn) {
+      _skipNextTurn = false;
+      return;
+    }
+    if (_hovered || widget.assets.length < 2) return;
+    _crossfadeTo((_index + 1) % widget.assets.length);
+  }
+
+  void _crossfadeTo(int index) {
+    if (index == _index) return;
+    setState(() {
+      _previous = _index;
+      _index = index;
     });
+    _fade.forward(from: 0);
   }
 
   void _show(int index) {
-    if (index != _index) setState(() => _index = index);
-    _scheduleNext(_slideInterval);
+    _skipNextTurn = true;
+    _crossfadeTo(index);
   }
+
+  Widget _image(int index) => Image.asset(
+    widget.assets[index],
+    key: ValueKey(index),
+    fit: BoxFit.cover,
+    gaplessPlayback: true,
+    semanticLabel: '${widget.label} (${index + 1}/${widget.assets.length})',
+  );
 
   @override
   Widget build(BuildContext context) {
     final count = widget.assets.length;
     final small = widget.width < 300;
+    final previous = _previous;
     return MouseRegion(
       onEnter: (_) => _hovered = true,
       onExit: (_) => _hovered = false,
@@ -267,21 +357,8 @@ class _SlideshowFrameState extends State<_SlideshowFrame> {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            AnimatedSwitcher(
-              duration: _fadeDuration,
-              switchInCurve: Curves.easeInOut,
-              switchOutCurve: Curves.easeInOut,
-              // Both images fill the frame for the whole crossfade, so nothing
-              // resizes or jumps mid-transition.
-              layoutBuilder: (current, previous) => Stack(fit: StackFit.expand, children: [...previous, ?current]),
-              child: Image.asset(
-                widget.assets[_index],
-                key: ValueKey(_index),
-                fit: BoxFit.cover,
-                gaplessPlayback: true,
-                semanticLabel: '${widget.label} (${_index + 1}/$count)',
-              ),
-            ),
+            ?(previous == null ? null : _image(previous)),
+            FadeTransition(opacity: _opacity, child: _image(_index)),
             if (count > 1)
               Positioned(
                 left: 0,

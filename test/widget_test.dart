@@ -71,35 +71,45 @@ void main() {
     debugDefaultTargetPlatformOverride = null;
   });
 
-  testWidgets('screenshot windows run on their own staggered timers and dots pick an image', (tester) async {
+  testWidgets('screenshots change one at a time in diagonal pairs, then the centre phone', (tester) async {
     await _pumpSite(tester, const Size(1920, 2400));
 
     bool showing(String asset) => find
         .byWidgetPredicate((w) => w is Image && w.image is AssetImage && (w.image as AssetImage).assetName == asset)
         .evaluate()
         .isNotEmpty;
+    Future<void> at(int ms, int previousMs) => tester.pump(Duration(milliseconds: ms - previousMs));
 
-    // Arrows are gone; dots are the only control.
-    expect(find.byIcon(Icons.chevron_left), findsNothing);
+    expect(find.byIcon(Icons.chevron_left), findsNothing); // dots are the only control
 
-    // 5 windows staggered across a 4s interval: window n first changes at 4s + n * 0.8s.
-    // (No pumpAndSettle: with staggered timers some window is always mid-fade.)
-    await tester.pump(const Duration(milliseconds: 4100));
-    await tester.pump();
-    expect(showing('assets/screenshots/desktop/2.jpg'), isTrue);
-    expect(showing('assets/screenshots/desktop/3.jpg'), isFalse, reason: 'desktop window 2 waits until 4.8s');
-
-    await tester.pump(const Duration(milliseconds: 800));
-    await tester.pump();
-    expect(showing('assets/screenshots/desktop/3.jpg'), isTrue);
-    expect(showing('assets/screenshots/mobile/2.png'), isFalse, reason: 'mobile window 1 waits until 5.6s');
-
-    // Let desktop window 1 finish fading, then its first dot brings screenshot 1 back.
-    await tester.pump(const Duration(milliseconds: 1200));
+    // 3.0s: desktop left (1 → 2), fade ends at 4.4s.
+    await at(3100, 0);
+    await at(4700, 3100);
     expect(showing('assets/screenshots/desktop/1.jpg'), isFalse);
+    expect(showing('assets/screenshots/mobile/6.png'), isFalse, reason: 'phone right waits 1s after the fade');
+
+    // 5.4s: phone right, diagonal to desktop left (5 → 6).
+    await at(5500, 4700);
+    expect(showing('assets/screenshots/mobile/6.png'), isTrue);
+    await at(7000, 5500);
+    expect(showing('assets/screenshots/desktop/3.jpg'), isFalse, reason: 'desktop right waits until 8.8s');
+
+    // 8.8s: desktop right (2 → 3); 11.2s: phone left, diagonal to it (1 → 2).
+    await at(8900, 7000);
+    expect(showing('assets/screenshots/desktop/3.jpg'), isTrue);
+    expect(showing('assets/screenshots/mobile/2.png'), isFalse);
+    await at(11300, 8900);
+    expect(showing('assets/screenshots/mobile/2.png'), isTrue);
+    expect(showing('assets/screenshots/mobile/4.png'), isFalse, reason: 'centre phone waits until 14.6s');
+
+    // 14.6s: centre phone on its own (3 → 4).
+    await at(14700, 11300);
+    expect(showing('assets/screenshots/mobile/4.png'), isTrue);
+
+    // First dot of desktop left brings screenshot 1 back.
     await tester.tap(find.byKey(const ValueKey('slide-dot-0')).first);
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 1200));
+    await tester.pump(const Duration(milliseconds: 1500));
     expect(showing('assets/screenshots/desktop/1.jpg'), isTrue);
   });
 }
