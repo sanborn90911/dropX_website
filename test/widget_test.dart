@@ -82,28 +82,28 @@ void main() {
 
     expect(find.byIcon(Icons.chevron_left), findsNothing); // dots are the only control
 
-    // 3.0s: desktop left (1 → 2), fade ends at 4.4s.
-    await at(3100, 0);
-    await at(4700, 3100);
+    // 1.0s after opening: desktop left (1 → 2), fade ends at 2.4s.
+    await at(1100, 0);
+    await at(2700, 1100);
     expect(showing('assets/screenshots/desktop/1.jpg'), isFalse);
     expect(showing('assets/screenshots/mobile/6.png'), isFalse, reason: 'phone right waits 1s after the fade');
 
-    // 5.4s: phone right, diagonal to desktop left (5 → 6).
-    await at(5500, 4700);
+    // 3.4s: phone right, diagonal to desktop left (5 → 6).
+    await at(3500, 2700);
     expect(showing('assets/screenshots/mobile/6.png'), isTrue);
-    await at(7000, 5500);
-    expect(showing('assets/screenshots/desktop/3.jpg'), isFalse, reason: 'desktop right waits until 8.8s');
+    await at(5000, 3500);
+    expect(showing('assets/screenshots/desktop/3.jpg'), isFalse, reason: 'desktop right waits until 6.8s');
 
-    // 8.8s: desktop right (2 → 3); 11.2s: phone left, diagonal to it (1 → 2).
-    await at(8900, 7000);
+    // 6.8s: desktop right (2 → 3); 9.2s: phone left, diagonal to it (1 → 2).
+    await at(6900, 5000);
     expect(showing('assets/screenshots/desktop/3.jpg'), isTrue);
     expect(showing('assets/screenshots/mobile/2.png'), isFalse);
-    await at(11300, 8900);
+    await at(9300, 6900);
     expect(showing('assets/screenshots/mobile/2.png'), isTrue);
-    expect(showing('assets/screenshots/mobile/4.png'), isFalse, reason: 'centre phone waits until 14.6s');
+    expect(showing('assets/screenshots/mobile/4.png'), isFalse, reason: 'centre phone waits until 12.6s');
 
-    // 14.6s: centre phone on its own (3 → 4).
-    await at(14700, 11300);
+    // 12.6s: centre phone on its own (3 → 4).
+    await at(12700, 9300);
     expect(showing('assets/screenshots/mobile/4.png'), isTrue);
 
     // First dot of desktop left brings screenshot 1 back.
@@ -111,5 +111,34 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 1500));
     expect(showing('assets/screenshots/desktop/1.jpg'), isTrue);
+  });
+
+  testWidgets('clicking a screenshot opens it full-size; the viewer can switch images and close', (tester) async {
+    await _pumpSite(tester, const Size(1920, 2400));
+    Finder image(String asset) =>
+        find.byWidgetPredicate((w) => w is Image && w.image is AssetImage && (w.image as AssetImage).assetName == asset);
+
+    // Open desktop window 1 before its first scheduled change.
+    await tester.tap(image('assets/screenshots/desktop/1.jpg').first);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.byKey(const ValueKey('viewer-close')), findsOneWidget);
+
+    // Its turn (1s) passes while the viewer is open: the window must not change underneath.
+    await tester.pump(const Duration(milliseconds: 1500));
+    expect(image('assets/screenshots/desktop/1.jpg'), findsNWidgets(2)); // viewer + window
+
+    // Switch to the second image inside the viewer, then close with the ✕.
+    await tester.tap(find.byKey(const ValueKey('viewer-dot-1')));
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.tap(find.byKey(const ValueKey('viewer-close')));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.byKey(const ValueKey('viewer-close')), findsNothing);
+
+    // The window now shows the image the visitor ended on.
+    await tester.pump(const Duration(milliseconds: 1500));
+    expect(image('assets/screenshots/desktop/1.jpg'), findsNothing);
+    expect(image('assets/screenshots/desktop/2.jpg'), findsNWidgets(2)); // window 1 (now) + window 2
   });
 }

@@ -9,6 +9,7 @@ import '../routes.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_theme.dart';
 import '../widgets/hover_outline.dart';
+import '../widgets/screenshot_viewer.dart';
 import '../widgets/site_scaffold.dart';
 
 class HomePage extends StatelessWidget {
@@ -113,7 +114,7 @@ const int _pairGapMs = 1000; // between a desktop change ending and its diagonal
 const int _restMs = 2000; // between groups
 const Duration _fadeDuration = Duration(milliseconds: _fadeMs);
 const Curve _fadeCurve = Curves.easeInOutSine;
-const Duration _firstChangeDelay = Duration(seconds: 3);
+const Duration _firstChangeDelay = Duration(seconds: 1); // first pair starts right after the page opens
 
 /// (window, wait since the previous change started).
 const List<({int slot, Duration wait})> _schedule = [
@@ -266,6 +267,8 @@ class _SlideshowFrameState extends State<_SlideshowFrame> with SingleTickerProvi
   int _index = 0;
   int? _previous; // image underneath while the current one fades in
   bool _hovered = false;
+  bool _pressed = false;
+  bool _viewerOpen = false;
   bool _skipNextTurn = false;
 
   late final AnimationController _fade = AnimationController(vsync: this, duration: _fadeDuration, value: 1)
@@ -311,8 +314,17 @@ class _SlideshowFrameState extends State<_SlideshowFrame> with SingleTickerProvi
       _skipNextTurn = false;
       return;
     }
-    if (_hovered || widget.assets.length < 2) return;
+    if (_hovered || _viewerOpen || widget.assets.length < 2) return;
     _crossfadeTo((_index + 1) % widget.assets.length);
+  }
+
+  Future<void> _openViewer() async {
+    _viewerOpen = true;
+    final shown = await showScreenshotViewer(context, assets: widget.assets, initialIndex: _index, label: widget.label);
+    if (!mounted) return;
+    _viewerOpen = false;
+    // Keep showing whichever image the visitor ended on in the viewer.
+    if (shown != null && shown != _index) _show(shown);
   }
 
   void _crossfadeTo(int index) {
@@ -342,53 +354,76 @@ class _SlideshowFrameState extends State<_SlideshowFrame> with SingleTickerProvi
     final count = widget.assets.length;
     final small = widget.width < 300;
     final previous = _previous;
+    // Same interaction style as every other clickable item: light border on
+    // hover, solid while pressed.
+    final borderColor = _pressed
+        ? AppColors.accentGreen
+        : _hovered
+        ? AppColors.hoverBorder
+        : AppColors.border;
     return MouseRegion(
-      onEnter: (_) => _hovered = true,
-      onExit: (_) => _hovered = false,
-      child: Container(
-        width: widget.width,
-        height: widget.width / widget.aspect,
-        clipBehavior: Clip.antiAlias,
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.border),
-        ),
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            ?(previous == null ? null : _image(previous)),
-            FadeTransition(opacity: _opacity, child: _image(_index)),
-            if (count > 1)
-              Positioned(
-                left: 0,
-                right: 0,
-                bottom: small ? 6 : 10,
-                child: Center(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: AppColors.background.withValues(alpha: 0.55),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        for (var i = 0; i < count; i++)
-                          _SlideDot(
-                            key: ValueKey('slide-dot-$i'),
-                            active: i == _index,
-                            label: '${widget.label} (${i + 1}/$count)',
-                            onTap: () => _show(i),
-                          ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-          ],
+      cursor: SystemMouseCursors.zoomIn,
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() => _hovered = false),
+      child: GestureDetector(
+        onTapDown: (_) => setState(() => _pressed = true),
+        onTapUp: (_) => setState(() => _pressed = false),
+        onTapCancel: () => setState(() => _pressed = false),
+        onTap: _openViewer,
+        child: Semantics(
+          button: true,
+          label: '${widget.label} (${_index + 1}/$count)',
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 120),
+            width: widget.width,
+            height: widget.width / widget.aspect,
+            clipBehavior: Clip.antiAlias,
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: borderColor, width: 1.5),
+            ),
+            child: _frameContent(count, small, previous),
+          ),
         ),
       ),
+    );
+  }
+
+  Widget _frameContent(int count, bool small, int? previous) {
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        ?(previous == null ? null : _image(previous)),
+        FadeTransition(opacity: _opacity, child: _image(_index)),
+        if (count > 1)
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: small ? 6 : 10,
+            child: Center(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                decoration: BoxDecoration(
+                  color: AppColors.background.withValues(alpha: 0.55),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    for (var i = 0; i < count; i++)
+                      _SlideDot(
+                        key: ValueKey('slide-dot-$i'),
+                        active: i == _index,
+                        label: '${widget.label} (${i + 1}/$count)',
+                        onTap: () => _show(i),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 }
