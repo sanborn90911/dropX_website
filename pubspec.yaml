@@ -1,0 +1,44 @@
+name: dropx_website
+description: "Landing page for dropX — cross-platform local file sharing."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.13.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  url_launcher: ^6.3.1   # Installer download links / web-app link once published
+  cupertino_icons: ^1.0.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/
+    - assets/i18n/
+    - assets/screenshots/desktop/
+    - assets/screenshots/mobile/
+
+  # Same family as the dropX app (dropsync_app) — only the upright weights
+  # the website actually uses, to keep the web bundle small.
+  fonts:
+    - family: RobotoCondensed
+      fonts:
+        - asset: assets/fonts/roboto_condensed/RobotoCondensed-Light.ttf
+          weight: 300
+        - asset: assets/fonts/roboto_condensed/RobotoCondensed-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/roboto_condensed/RobotoCondensed-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/roboto_condensed/RobotoCondensed-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/roboto_condensed/RobotoCondensed-Bold.ttf
+          weight: 700
