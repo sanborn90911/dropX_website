@@ -49,5 +49,6 @@
 
   "legal.coming_soon": "Content coming soon.",
   "common.back_home": "Back to Home",
-  "common.close": "Close"
+  "common.close": "Close",
+  "common.copied": "Copied to clipboard"
 }

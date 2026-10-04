@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../l10n/l10n.dart';
 import '../routes.dart';
@@ -95,9 +96,14 @@ class _SiteFooterState extends State<SiteFooter> with SingleTickerProviderStateM
                   ),
                 ),
                 const SizedBox(height: 6),
-                Text(
-                  l.t('common.coming_soon'),
-                  style: const TextStyle(fontFamily: kFontFamily, color: AppColors.textSecondary, fontSize: 14),
+                SiteLink(
+                  label: Routes.supportEmail,
+                  onTap: () {
+                    Clipboard.setData(const ClipboardData(text: Routes.supportEmail));
+                    ScaffoldMessenger.of(context)
+                      ..hideCurrentSnackBar()
+                      ..showSnackBar(SnackBar(content: Text(l.t('common.copied'))));
+                  },
                 ),
               ],
             ),
@@ -108,8 +114,8 @@ class _SiteFooterState extends State<SiteFooter> with SingleTickerProviderStateM
             spacing: 8,
             runSpacing: 4,
             children: [
-              SiteLink(label: l.t('footer.privacy'), onTap: () => Routes.go(context, Routes.privacy)),
-              SiteLink(label: l.t('footer.terms'), onTap: () => Routes.go(context, Routes.terms)),
+              SiteLink(label: l.t('footer.privacy'), onTap: () => Routes.openLegal('privacy')),
+              SiteLink(label: l.t('footer.terms'), onTap: () => Routes.openLegal('terms')),
             ],
           ),
           const SizedBox(height: 20),

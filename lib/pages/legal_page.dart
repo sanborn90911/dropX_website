@@ -7,11 +7,26 @@ import '../theme/app_theme.dart';
 import '../widgets/hover_outline.dart';
 import '../widgets/site_scaffold.dart';
 
-/// Placeholder for Privacy Policy / Terms & Conditions until their text exists.
-class LegalPage extends StatelessWidget {
+/// Old `/privacy` and `/terms` routes, kept so existing links still land
+/// somewhere useful: the real policy text is the static `legal.html`, so
+/// this immediately hands off to the matching section there, with a plain
+/// link as a fallback if the browser blocks the redirect.
+class LegalPage extends StatefulWidget {
   final String titleKey;
+  final String section;
 
-  const LegalPage({super.key, required this.titleKey});
+  const LegalPage({super.key, required this.titleKey, required this.section});
+
+  @override
+  State<LegalPage> createState() => _LegalPageState();
+}
+
+class _LegalPageState extends State<LegalPage> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => Routes.openLegal(widget.section));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +37,7 @@ class LegalPage extends StatelessWidget {
         child: Column(
           children: [
             Text(
-              l.t(titleKey),
+              l.t(widget.titleKey),
               textAlign: TextAlign.center,
               style: const TextStyle(
                 fontFamily: kFontFamily,
@@ -31,12 +46,13 @@ class LegalPage extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 12),
-            Text(
-              l.t('legal.coming_soon'),
-              style: const TextStyle(fontFamily: kFontFamily, color: AppColors.textSecondary, fontSize: 15),
-            ),
             const SizedBox(height: 28),
+            SiteButton(
+              label: l.t(widget.titleKey),
+              icon: Icons.open_in_new,
+              onTap: () => Routes.openLegal(widget.section),
+            ),
+            const SizedBox(height: 12),
             SiteButton(label: l.t('common.back_home'), icon: Icons.arrow_back, onTap: () => Routes.goHome(context)),
           ],
         ),

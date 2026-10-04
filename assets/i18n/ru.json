@@ -49,5 +49,6 @@
 
   "legal.coming_soon": "Содержимое скоро появится.",
   "common.back_home": "На главную",
-  "common.close": "Закрыть"
+  "common.close": "Закрыть",
+  "common.copied": "Скопировано в буфер обмена"
 }

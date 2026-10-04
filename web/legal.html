@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>dropX — Privacy Policy, Terms of Service &amp; Attributions</title>
+  <meta name="description" content="Privacy Policy, Terms of Service and open-source attributions for dropX, a local-network file-sharing app. dropX has no servers and collects no personal data.">
+  <meta name="color-scheme" content="dark light">
+  <meta name="theme-color" content="#0F172A">
+  <link rel="icon" type="image/png" href="favicon.png">
+  <style>
+    :root {
+      --bg: #0F172A;
+      --surface: #111C33;
+      --surface-2: #16223D;
+      --border: #24324F;
+      --text: #CBD5E1;
+      --text-strong: #F1F5F9;
+      --muted: #94A3B8;
+      --accent: #39FF14;      /* dropX green */
+      --accent-soft: rgba(57, 255, 20, 0.12);
+      --link: #7DD3FC;
+      --warn: #FBBF24;
+      --radius: 12px;
+      --measure: 72ch;
+      --header-h: 112px;
+    }
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg: #F8FAFC;
+        --surface: #FFFFFF;
+        --surface-2: #F1F5F9;
+        --border: #E2E8F0;
+        --text: #334155;
+        --text-strong: #0F172A;
+        --muted: #64748B;
+        --accent: #15803D;
+        --accent-soft: rgba(21, 128, 61, 0.10);
+        --link: #0369A1;
+        --warn: #B45309;
+      }
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 16px/1.7 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+    }
+    a { color: var(--link); text-underline-offset: 3px; }
+    a:hover { text-decoration-thickness: 2px; }
+    a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
+
+    /* ---------- Header + tabs ---------- */
+    .top {
+      position: sticky; top: 0; z-index: 10;
+      background: color-mix(in srgb, var(--bg) 88%, transparent);
+      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+    }
+    .top-inner { max-width: 960px; margin: 0 auto; padding: 14px 20px 0; }
+    .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text-strong); }
+    .brand img { width: 28px; height: 28px; }
+    .brand strong { color: var(--accent); font-size: 20px; letter-spacing: 1px; }
+    .brand span { color: var(--muted); font-size: 14px; }
+    nav.tabs {
+      display: flex; gap: 4px; margin-top: 10px;
+      overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch;
+    }
+    nav.tabs::-webkit-scrollbar { display: none; }
+    nav.tabs a {
+      flex: 0 0 auto;
+      padding: 10px 14px;
+      color: var(--muted);
+      text-decoration: none; font-size: 15px; font-weight: 500;
+      border-bottom: 2px solid transparent;
+      transition: color .15s, border-color .15s;
+    }
+    nav.tabs a:hover { color: var(--text-strong); border-bottom-color: var(--border); }
+    nav.tabs a[aria-current="true"] { color: var(--text-strong); border-bottom-color: var(--accent); }
+
+    /* ---------- Content ---------- */
+    main { max-width: 960px; margin: 0 auto; padding: 32px 20px 64px; }
+    .doc { max-width: var(--measure); }
+    section.part { scroll-margin-top: calc(var(--header-h) + 8px); padding-top: 8px; margin-bottom: 64px; }
+    h1, h2, h3 { color: var(--text-strong); line-height: 1.25; }
+    h1 { font-size: clamp(28px, 4vw, 36px); margin: 0 0 8px; }
+    h2 { font-size: 20px; margin: 36px 0 8px; scroll-margin-top: calc(var(--header-h) + 8px); }
+    h3 { font-size: 17px; margin: 24px 0 6px; }
+    p, ul, ol { margin: 0 0 14px; }
+    ul, ol { padding-left: 22px; }
+    li { margin-bottom: 6px; }
+    .meta { color: var(--muted); font-size: 14px; margin-bottom: 24px; }
+    .lead { font-size: 17px; color: var(--text-strong); }
+    code { font: 0.92em ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; background: var(--surface-2); padding: 1px 6px; border-radius: 6px; }
+
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 18px 20px; margin: 20px 0;
+    }
+    .card.highlight { border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); background: linear-gradient(0deg, var(--accent-soft), var(--accent-soft)), var(--surface); }
+    .card h3 { margin-top: 0; }
+    .checks { list-style: none; padding: 0; margin: 0; }
+    .checks li { position: relative; padding-left: 28px; }
+    .checks li::before {
+      content: ""; position: absolute; left: 4px; top: .55em;
+      width: 12px; height: 7px; border-left: 2px solid var(--accent); border-bottom: 2px solid var(--accent);
+      transform: rotate(-45deg);
+    }
+    .caps { text-transform: uppercase; font-size: 14px; letter-spacing: .2px; }
+    .note { border-left: 3px solid var(--warn); padding: 4px 0 4px 14px; color: var(--text); }
+
+    .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius); margin: 16px 0 20px; }
+    table { width: 100%; border-collapse: collapse; font-size: 15px; }
+    th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    th { background: var(--surface-2); color: var(--text-strong); font-weight: 600; white-space: nowrap; }
+    tr:last-child td { border-bottom: 0; }
+    td:first-child { white-space: nowrap; color: var(--text-strong); }
+
+    .contact-grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+    .contact-grid .card { margin: 0; }
+    .label { color: var(--muted); font-size: 13px; text-transform: uppercase; letter-spacing: .6px; margin-bottom: 4px; }
+    .value { color: var(--text-strong); font-size: 17px; word-break: break-word; }
+
+    footer { border-top: 1px solid var(--border); color: var(--muted); font-size: 14px; text-align: center; padding: 24px 20px 40px; }
+    footer a { color: var(--muted); }
+
+    @media (max-width: 600px) {
+      :root { --header-h: 100px; }
+      body { font-size: 15.5px; }
+      main { padding-top: 24px; }
+      th, td { padding: 9px 11px; }
+    }
+    @media print {
+      .top { position: static; }
+      nav.tabs { display: none; }
+      body { background: #fff; color: #000; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-inner">
+    <a class="brand" href="./">
+      <img src="icons/Icon-192.png" alt="" width="28" height="28">
+      <strong>dropX</strong><span>Legal</span>
+    </a>
+    <nav class="tabs" aria-label="Legal sections">
+      <a href="#privacy">Privacy Policy</a>
+      <a href="#terms">Terms of Service</a>
+      <a href="#open-source">Open Source Attributions</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="doc">
+
+    <!-- ====================================================== -->
+    <section class="part" id="privacy" aria-labelledby="privacy-title">
+      <h1 id="privacy-title">Privacy Policy</h1>
+      <p class="meta">Last updated: <strong>October 2026</strong> · Applies to dropX on Android, iOS, Windows, macOS and Linux.</p>
+
+      <p class="lead">dropX sends files directly between your own devices over a local network. It has no servers, no accounts and no analytics. We (the developer) never receive your files or any information about how you use the app.</p>
+
+      <div class="card highlight">
+        <h3>At a glance</h3>
+        <ul class="checks">
+          <li>Works only over local area networks (LAN / Wi-Fi) and peer-to-peer device hotspots.</li>
+          <li>No servers, cloud storage or intermediate relay nodes — files go straight from one device to the other.</li>
+          <li>Every transfer is end-to-end encrypted between the two devices, with a 6-digit verification code shown on both screens.</li>
+          <li>No tracking pixels, no advertising identifiers, no analytics, no telemetry, no crash reporting.</li>
+          <li>No account or sign-up. Nothing is sold, rented or shared with advertisers or data brokers.</li>
+          <li>Support emails you choose to send are used only to reply to you, and are never added to any profiling database.</li>
+        </ul>
+      </div>
+
+      <h2 id="how-it-works">1. How dropX works</h2>
+      <p>dropX operates exclusively over local area networks (for example, your home Wi-Fi) and over peer-to-peer hotspots created by one of your devices. Devices find each other on that network using standard local service discovery (mDNS / Bonjour), then connect to each other directly to transfer files.</p>
+      <p>dropX does not operate any servers, and no transfer is routed through the internet, a cloud service or a relay node controlled by us or anyone else. An internet connection is not required for dropX to work.</p>
+
+      <h2 id="not-collected">2. Information we do not collect</h2>
+      <p>The developer does not collect, receive or store any personal data through the app. In particular, dropX does not:</p>
+      <ul>
+        <li>contain tracking pixels, analytics or telemetry software development kits (SDKs);</li>
+        <li>access or use advertising identifiers (such as Google Advertising ID or Apple IDFA), or show advertisements;</li>
+        <li>send crash reports, usage statistics or diagnostics to us automatically;</li>
+        <li>upload, scan or inspect the contents of the files you transfer;</li>
+        <li>determine, record or share your location;</li>
+        <li>require an account, email address or phone number.</li>
+      </ul>
+
+      <h2 id="on-device">3. Information stored only on your device</h2>
+      <p>To work, dropX keeps a small amount of information locally on your device. It never leaves your device except as described in section 4.</p>
+      <ul>
+        <li><strong>Display name</strong> — the name you choose (or your device's default name) so other devices can recognise you.</li>
+        <li><strong>Transfer history</strong> — for each transfer: the other device's display name, file names, total size, date and time, whether it succeeded, and where received files were saved. You can delete individual entries or the whole history at any time in the app.</li>
+        <li><strong>Settings</strong> — such as your language and your chosen save location on desktop.</li>
+        <li><strong>Received files</strong> — saved to the location you choose (or, on iOS, your Photos library for photos and videos, when you allow it).</li>
+      </ul>
+      <p>Uninstalling dropX removes its stored data from your device (files you received and saved elsewhere remain where you saved them).</p>
+
+      <h2 id="shared-nearby">4. Information shared with nearby devices</h2>
+      <p>While dropX is open, it makes your device discoverable to other dropX devices on the <em>same local network</em>. To do this it announces your <strong>display name</strong>, your <strong>device type and operating-system version</strong> (for example, Android 14 or Windows) and the dropX protocol version. This announcement is not encrypted, because other devices need to read it to find you; anyone on that same network running compatible software may be able to see it. Choose a display name you are comfortable with others on that network seeing.</p>
+      <p>When you send files, the device you choose to send to receives the files themselves and their names and sizes. Nothing is shared until you select files and a receiving device, and a transfer only takes place between the two devices involved. Everything exchanged during a transfer is end-to-end encrypted (see section 8).</p>
+
+      <h2 id="permissions">5. Device permissions</h2>
+      <p>dropX asks only for the permissions it needs to find nearby devices and move files. You can deny or revoke any of them in your device's settings; some features may then stop working.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Permission</th><th>Why dropX uses it</th></tr></thead>
+          <tbody>
+            <tr><td>Local network / Nearby Wi-Fi devices</td><td>To discover other dropX devices and connect to them directly on your Wi-Fi or hotspot.</td></tr>
+            <tr><td>Location (Android only)</td><td>Some Android versions require this permission before an app can read Wi-Fi details such as the network name. dropX uses it only to show which Wi-Fi network you are on; it never determines or records your location.</td></tr>
+            <tr><td>Photos, videos &amp; audio / Storage</td><td>To let you pick files to send, and to save the files you receive.</td></tr>
+            <tr><td>Installed apps (Android only)</td><td>Only when you open the “Apps (APK)” option, to list apps on your device so you can choose one to send. This list stays on your device.</td></tr>
+            <tr><td>Notifications</td><td>To show transfer progress and completion alerts. These notifications are generated on your device.</td></tr>
+            <tr><td>Background activity / battery optimisation, foreground service</td><td>To keep a transfer running if you switch apps or the screen turns off.</td></tr>
+            <tr><td>Network access</td><td>Required by the operating system for any local network connection. dropX does not use it to contact the internet.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 id="logs">6. Diagnostic logs you choose to share</h2>
+      <p>To help troubleshoot failed transfers, dropX keeps a short technical log of the current session in memory only; it is not saved to disk and is discarded when the app closes. Nothing is sent automatically.</p>
+      <p>If you choose “Share Log”, dropX first shows you the exact text to review. Before it is displayed, IP addresses, device host names and your computer's account name are replaced with placeholders (such as <code>IP_1</code>, <code>HOSTNAME_1</code> and <code>USER</code>). File names and dropX display names may still appear; the log never contains the contents of any file. It leaves your device only if you choose <strong>Download</strong> or <strong>Send</strong> yourself, to whoever you choose.</p>
+      <p>If you choose to send it to the developer, dropX opens a draft email to <a href="mailto:support@dropx.dev">support@dropx.dev</a> in your own email app, with the log attached and a short summary of the problem filled in (such as the error shown, the app version and your device's operating system). You can read and edit the draft, and nothing is sent unless you send it. Section 7 explains how support emails are handled.</p>
+
+      <h2 id="support-email">7. Support emails</h2>
+      <p>If you contact us by email, we receive your email address and whatever you include in your message (for example, a description of the problem, screenshots or a log you chose to attach). This information is used <strong>strictly to read and reply to your technical support request</strong>. It is not added to any profiling or marketing database, not used for advertising, and not sold or shared with third parties. We keep support correspondence only as long as needed to resolve your request, and you can ask us to delete it at any time.</p>
+
+      <h2 id="security">8. Security</h2>
+      <p>Because transfers never pass through our servers or the internet, your files are only ever on the two devices involved and on the local network between them.</p>
+      <p><strong>End-to-end encryption.</strong> For every connection, both devices generate brand-new encryption keys using an X25519 key exchange. These keys are never stored and never leave either device. Every file, file name and transfer message is then encrypted and authenticated with ChaCha20-Poly1305, so other devices on the same network, including the router itself, cannot read or alter what you send. In addition, dropX verifies every received file with a SHA-256 checksum.</p>
+      <p><strong>Verification code.</strong> Before a transfer starts, the sending and receiving devices both show the same 6-digit code. If the codes match, the encrypted connection is directly between your two devices. If they do not match, reject the transfer.</p>
+      <p class="note">Encryption protects what is sent, not who sends it. Only accept transfers you expect, from devices you recognise. Devices running a dropX version released before encrypted transfers were introduced cannot connect to current versions, so update dropX on all your devices.</p>
+
+      <h2 id="children">9. Children's privacy</h2>
+      <p>dropX does not collect personal information from anyone, including children under 13 (or the equivalent minimum age in your country).</p>
+
+      <h2 id="rights">10. Your choices and rights</h2>
+      <p>Because the developer holds no personal data from the app, there is nothing for us to access, correct, export or delete on our side. Everything dropX stores is on your own device and under your control: you can clear transfer history in the app, change your display name, revoke permissions in system settings, or uninstall the app. For support emails, you can ask us to delete your correspondence using the contact details below. These choices apply regardless of where you live, including under the GDPR, UK GDPR, CCPA/CPRA and India's Digital Personal Data Protection Act.</p>
+
+      <h2 id="third-parties">11. Third parties</h2>
+      <p>dropX does not include third-party advertising, analytics or tracking services. It is built with the open-source libraries listed in <a href="#open-source">Open Source Attributions</a>, which run entirely on your device. If you download dropX from an app store, the store's own privacy policy applies to that store.</p>
+
+      <h2 id="changes">12. Changes to this policy</h2>
+      <p>If this policy changes, the updated version ships with a new version of the app and is posted on this page, each with a new “Last updated” date. The same policy is always available in the app under <strong>Settings → Legal &amp; Privacy</strong>, with no internet connection needed.</p>
+    </section>
+
+    <!-- ====================================================== -->
+    <section class="part" id="terms" aria-labelledby="terms-title">
+      <h1 id="terms-title">Terms of Service</h1>
+      <p class="meta">Last updated: <strong>October 2026</strong></p>
+
+      <p>These Terms govern your use of the dropX application and website (together, the “Software”), provided by Saurabh Sharma (“we”, “us”). By installing or using the Software, you agree to these Terms. If you do not agree, do not use the Software.</p>
+
+      <h2 id="license">1. License</h2>
+      <p>We grant you a personal, non-exclusive, non-transferable, revocable license to install and use the Software on devices you own or control, subject to these Terms. Open-source components are licensed under their own terms (see <a href="#open-source">Open Source Attributions</a>).</p>
+
+      <h2 id="acceptable-use">2. Your content and acceptable use</h2>
+      <p>dropX is an encrypted conduit between two devices that you choose to connect. It does not host, store, review or moderate any content transferred through it, and takes no part in selecting or approving that content. Both devices must run a current version of dropX; versions released before encrypted transfers were introduced cannot connect to it.</p>
+      <p>You are solely responsible for the files you send and receive, and for having the right to do so. You agree not to use the Software to transfer content you do not have the legal right to transfer, to infringe others' rights, to distribute malware, or for any purpose that violates applicable law. The developer is not responsible for the legality, accuracy or safety of any file that you or another user chooses to transfer.</p>
+
+      <h2 id="as-is">3. Disclaimer of warranties (“as is”)</h2>
+      <p class="caps">The Software is provided “as is” and “as available”, without warranties of any kind, whether express, implied or statutory, including without limitation any implied warranties of merchantability, fitness for a particular purpose, title, non-infringement, accuracy, or uninterrupted or error-free operation. We do not warrant that the Software will be compatible with your devices or networks, that transfers will succeed or complete, or that any defects will be corrected.</p>
+
+      <h2 id="assumption-of-risk">4. Assumption of risk</h2>
+      <p>dropX depends on network conditions and device settings that we do not control. You use the Software at your own risk and you assume all risks related to, including without limitation:</p>
+      <ul>
+        <li><strong>Local network configuration</strong> — routers, Wi-Fi extenders, mesh systems, guest networks, client/AP isolation, VPNs, and hotspot settings that may prevent devices from finding or reaching each other;</li>
+        <li><strong>Firewall and security software</strong> — firewalls, antivirus or operating-system restrictions that block or interrupt connections;</li>
+        <li><strong>Interrupted transfers</strong> — caused by devices sleeping, apps being suspended or closed by the operating system, low battery, loss of signal, or moving out of range;</li>
+        <li><strong>File integrity and data loss</strong> — incomplete, corrupted, overwritten or lost files, including files at the source or destination;</li>
+        <li><strong>Network security</strong> — using the Software on networks that are open, shared or not under your control.</li>
+        <li><strong>Accepting transfers</strong> — accepting files without comparing the verification code shown on both devices, or from senders you do not know.</li>
+      </ul>
+      <p>dropX encrypts every transfer end-to-end, but no security measure is perfect. We cannot guarantee that a transfer is safe from every possible attack, or that the other device, its owner or any file you receive is trustworthy. You are responsible for keeping backups of any files that matter to you before transferring them.</p>
+
+      <h2 id="liability">5. Limitation of liability</h2>
+      <p class="caps">To the maximum extent permitted by applicable law, in no event shall the developer, or any contributor or licensor of the Software, be liable for any indirect, incidental, special, consequential, exemplary or punitive damages, or for any loss of data, files, profits, revenue, goodwill or business opportunity, or for any cost of substitute goods or services, arising out of or in connection with the Software or these Terms, whether based on contract, tort (including negligence), strict liability or any other theory, even if advised of the possibility of such damages.</p>
+      <p class="caps">To the maximum extent permitted by applicable law, our total aggregate liability for all claims relating to the Software shall not exceed the amount you paid for the Software, if any.</p>
+      <p>Some jurisdictions do not allow certain warranties or liabilities to be excluded or limited. In those jurisdictions, the exclusions and limitations above apply only to the extent permitted by law, and nothing in these Terms affects rights you have as a consumer that cannot be waived by contract.</p>
+
+      <h2 id="indemnity">6. Indemnity</h2>
+      <p>To the extent permitted by law, you agree to indemnify and hold harmless the developer from claims arising out of content you transfer using the Software or your violation of these Terms.</p>
+
+      <h2 id="termination">7. Termination</h2>
+      <p>You may stop using the Software at any time by uninstalling it. Your license ends automatically if you breach these Terms. Sections 3 to 6 and 9 survive termination.</p>
+
+      <h2 id="changes-terms">8. Changes</h2>
+      <p>Updated Terms, if any, ship with a new version of the app and are posted on this page, each with a new “Last updated” date. Continuing to use the Software after an update means you accept the updated Terms.</p>
+
+      <h2 id="law">9. Governing law</h2>
+      <p>These Terms are governed by the laws of <strong>India</strong>, without regard to its conflict-of-law rules. dropX is available worldwide: if you live outside India, you keep the protection of any mandatory consumer-protection laws of your country of residence, and nothing in these Terms takes those rights away.</p>
+    </section>
+
+    <!-- ====================================================== -->
+    <section class="part" id="open-source" aria-labelledby="oss-title">
+      <h1 id="oss-title">Open Source Attributions</h1>
+      <p>dropX is built with the following open-source software. We are grateful to their authors and contributors. Each component is used under the license shown; follow the links for the full license text.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Component</th><th>License</th><th>Purpose</th></tr></thead>
+          <tbody>
+            <tr><td><a href="https://github.com/flutter/flutter/blob/master/LICENSE">Flutter SDK</a></td><td>BSD-3-Clause</td><td>App framework</td></tr>
+            <tr><td><a href="https://pub.dev/packages/bonsoir/license">bonsoir</a></td><td>MIT</td><td>Local network discovery (mDNS / Bonjour)</td></tr>
+            <tr><td><a href="https://pub.dev/packages/network_info_plus/license">network_info_plus</a></td><td>BSD-3-Clause</td><td>Local Wi-Fi details</td></tr>
+            <tr><td><a href="https://pub.dev/packages/device_info_plus/license">device_info_plus</a></td><td>BSD-3-Clause</td><td>Device and OS version checks</td></tr>
+            <tr><td><a href="https://pub.dev/packages/path_provider/license">path_provider</a></td><td>BSD-3-Clause</td><td>Storage locations</td></tr>
+            <tr><td><a href="https://pub.dev/packages/file_picker/license">file_picker</a></td><td>MIT</td><td>Choosing files to send</td></tr>
+            <tr><td><a href="https://pub.dev/packages/photo_manager/license">photo_manager</a></td><td>Apache-2.0</td><td>Saving to the iOS Photos library</td></tr>
+            <tr><td><a href="https://pub.dev/packages/permission_handler/license">permission_handler</a></td><td>MIT</td><td>Requesting device permissions</td></tr>
+            <tr><td><a href="https://pub.dev/packages/share_handler/license">share_handler</a></td><td>MIT</td><td>Receiving files from the system share sheet</td></tr>
+            <tr><td><a href="https://pub.dev/packages/share_plus/license">share_plus</a></td><td>BSD-3-Clause</td><td>Sharing via the system share sheet</td></tr>
+            <tr><td><a href="https://pub.dev/packages/package_info_plus/license">package_info_plus</a></td><td>BSD-3-Clause</td><td>App version information</td></tr>
+            <tr><td><a href="https://pub.dev/packages/flutter_local_notifications/license">flutter_local_notifications</a></td><td>BSD-3-Clause</td><td>On-device transfer notifications</td></tr>
+            <tr><td><a href="https://pub.dev/packages/flutter_riverpod/license">flutter_riverpod</a></td><td>MIT</td><td>App state management</td></tr>
+            <tr><td><a href="https://pub.dev/packages/crypto/license">crypto</a></td><td>BSD-3-Clause</td><td>SHA-256 file integrity checks</td></tr>
+            <tr><td><a href="https://pub.dev/packages/cryptography/license">cryptography</a></td><td>Apache-2.0</td><td>End-to-end encryption (X25519, ChaCha20-Poly1305)</td></tr>
+            <tr><td><a href="https://pub.dev/packages/cryptography_flutter/license">cryptography_flutter</a></td><td>Apache-2.0</td><td>Hardware-accelerated encryption on Android, iOS and macOS</td></tr>
+            <tr><td><a href="https://pub.dev/packages/shared_preferences/license">shared_preferences</a></td><td>BSD-3-Clause</td><td>Saving settings and history on device</td></tr>
+            <tr><td><a href="https://pub.dev/packages/wakelock_plus/license">wakelock_plus</a></td><td>BSD-3-Clause</td><td>Keeping the device awake during transfers</td></tr>
+            <tr><td><a href="https://pub.dev/packages/flutter_foreground_task/license">flutter_foreground_task</a></td><td>MIT</td><td>Background transfers on Android</td></tr>
+            <tr><td><a href="https://pub.dev/packages/url_launcher/license">url_launcher</a></td><td>BSD-3-Clause</td><td>Opening the support email and website links</td></tr>
+            <tr><td><a href="https://pub.dev/packages/qr_flutter/license">qr_flutter</a></td><td>BSD-3-Clause</td><td>QR code in Settings (Android)</td></tr>
+            <tr><td><a href="https://pub.dev/packages/macos_secure_bookmarks/license">macos_secure_bookmarks</a></td><td>Apache-2.0</td><td>Remembering your chosen save folder on macOS</td></tr>
+            <tr><td><a href="https://pub.dev/packages/cupertino_icons/license">cupertino_icons</a></td><td>MIT</td><td>Icons</td></tr>
+            <tr><td><a href="https://github.com/google/material-design-icons/blob/master/LICENSE">Material Icons</a></td><td>Apache-2.0</td><td>Icons</td></tr>
+            <tr><td><a href="https://openfontlicense.org/open-font-license-official-text/">Roboto Condensed</a></td><td>SIL Open Font License 1.1</td><td>Typeface</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>The licenses above require that their copyright and permission notices be preserved. The full license text of every component is included in the app under <strong>Settings → Legal &amp; Privacy → Open-Source Licenses</strong>, and is also available at the linked pages.</p>
+    </section>
+
+    <!-- ====================================================== -->
+    <section class="part" id="contact" aria-labelledby="contact-title">
+      <h1 id="contact-title">Developer &amp; Contact</h1>
+      <p>Questions about this Privacy Policy or these Terms, or a data-deletion request for a support email? Get in touch by email, or use <strong>Settings → Legal &amp; Privacy → Contact Support</strong> in the app.</p>
+      <div class="contact-grid">
+        <div class="card">
+          <div class="label">Developer</div>
+          <div class="value">Saurabh Sharma</div>
+        </div>
+        <div class="card">
+          <div class="label">Support email</div>
+          <div class="value"><a href="mailto:support@dropx.dev">support@dropx.dev</a></div>
+        </div>
+        <div class="card">
+          <div class="label">Official website</div>
+          <div class="value"><a href="https://dropx.dev">dropx.dev</a></div>
+        </div>
+        <div class="card">
+          <div class="label">Last updated</div>
+          <div class="value">October 2026</div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<footer>
+  © 2026 dropX by Saurabh Sharma. All rights reserved. · <a href="./">Back to dropX</a>
+</footer>
+
+<script>
+  // Highlight the tab for the section currently in view (anchors work without this).
+  (function () {
+    var links = Array.prototype.slice.call(document.querySelectorAll('nav.tabs a'));
+    var sections = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+    function setActive(id) {
+      links.forEach(function (a) {
+        var on = a.getAttribute('href') === '#' + id;
+        if (on) { a.setAttribute('aria-current', 'true'); a.scrollIntoView({ block: 'nearest', inline: 'nearest' }); }
+        else { a.removeAttribute('aria-current'); }
+      });
+    }
+    function update() {
+      var offset = document.querySelector('.top').offsetHeight + 24;
+      var current = sections[0];
+      sections.forEach(function (s) { if (s && s.getBoundingClientRect().top - offset <= 0) current = s; });
+      if ((window.innerHeight + window.scrollY) >= document.body.scrollHeight - 4) current = sections[sections.length - 1];
+      if (current) setActive(current.id);
+    }
+    document.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    update();
+  })();
+</script>
+</body>
+</html>
