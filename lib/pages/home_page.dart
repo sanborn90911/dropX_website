@@ -8,6 +8,7 @@ import '../l10n/l10n.dart';
 import '../routes.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_theme.dart';
+import '../widgets/device_link_animation.dart';
 import '../widgets/hover_outline.dart';
 import '../widgets/screenshot_viewer.dart';
 import '../widgets/site_scaffold.dart';
@@ -119,35 +120,36 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-/// Screenshot galleries: one entry per window, each a slideshow of the
-/// listed images (copied from the project's `Screenshots/` folder).
-const List<List<String>> _desktopScreenshots = [
-  ['assets/screenshots/desktop/1.jpg', 'assets/screenshots/desktop/2.jpg'],
-  ['assets/screenshots/desktop/2.jpg', 'assets/screenshots/desktop/3.jpg'],
+/// The store images (1–5 in slide order), shown in the one desktop window.
+const List<String> _desktopScreenshots = [
+  'assets/screenshots/desktop/1.png',
+  'assets/screenshots/desktop/2.png',
+  'assets/screenshots/desktop/3.png',
+  'assets/screenshots/desktop/4.png',
+  'assets/screenshots/desktop/5.png',
 ];
-const List<List<String>> _mobileScreenshots = [
-  ['assets/screenshots/mobile/1.png', 'assets/screenshots/mobile/2.png'],
-  ['assets/screenshots/mobile/3.png', 'assets/screenshots/mobile/4.png'],
-  ['assets/screenshots/mobile/5.png', 'assets/screenshots/mobile/6.png'],
-];
+
+/// The looping device animation's width and height, as a share of the desktop
+/// window's. It is centred on the window's bottom-right corner, so half of it
+/// (in each direction) hangs outside the window, clear of the screenshot text.
+const double _animationShare = 0.21;
 
 /// Pacing for everything on the page that changes by itself.
 ///
-/// Slot numbers: screenshot windows are 0–4 (desktop left/right = 0/1, phone
-/// left/centre/right = 2/3/4) and the four feature boxes are 5–8 (top-left,
-/// bottom-left, top-right, bottom-right, see [_featureBoxes]).
+/// Slot numbers: the screenshot window is 0 and the four feature boxes are
+/// 1–4 (top-left, bottom-left, top-right, bottom-right, see [_featureBoxes]).
+/// The device animation in the window's corner just loops on its own and takes
+/// no turn.
 ///
 /// One shared clock hands out a single turn every [_stride]: a change takes
 /// [_fadeMs] and the next one starts [_gapMs] after it ends, so only one
 /// thing is ever changing and no two changes ever coincide. The order keeps
-/// the diagonal pairing (a window, then the one diagonal to it) for the
-/// screenshots and the feature boxes alike, and alternates between the two:
+/// the diagonal pairing for the feature boxes:
 ///
-///   desktop left → phone right → box top-left → box bottom-right →
-///   desktop right → phone left → box bottom-left → box top-right →
-///   phone centre → (repeat)
+///   screenshot → box top-left → box bottom-right →
+///   box bottom-left → box top-right → (repeat)
 ///
-/// A full round is 9 turns × 2.4s = 21.6s, so each window changes every 21.6s
+/// A full round is 5 turns × 2.4s = 12s, so the screenshot changes every 12s
 /// while something on the page changes every 2.4s.
 const int _fadeMs = 1400;
 const int _gapMs = 1000; // between one change ending and the next starting
@@ -156,8 +158,8 @@ const Duration _stride = Duration(milliseconds: _fadeMs + _gapMs);
 const Curve _fadeCurve = Curves.easeInOutSine;
 const Duration _firstChangeDelay = Duration(seconds: 1); // first pair starts right after the page opens
 
-const int _featureSlotBase = 5;
-const List<int> _schedule = [0, 4, 5, 8, 1, 2, 6, 7, 3];
+const int _featureSlotBase = 1;
+const List<int> _schedule = [0, 1, 4, 2, 3];
 
 /// The window whose turn it is; `seq` makes repeated turns still notify.
 typedef _SlideTurn = ({int seq, int slot});
@@ -170,76 +172,47 @@ class _Screenshots extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = L10n.of(context);
-    final wide = isWideLayout(context);
-    final desktopCount = _desktopScreenshots.length;
     return LayoutBuilder(
       builder: (context, constraints) {
-        final gap = wide ? 24.0 : 20.0;
-        final maxWidth = constraints.maxWidth;
-        // Desktop: side by side on wide screens; one per swipe on phones.
-        final desktopWidth = wide ? ((maxWidth - gap * (desktopCount - 1)) / desktopCount) : maxWidth * 0.85;
-        final mobileWidth = wide ? (maxWidth * 0.2).clamp(220.0, 300.0) : (maxWidth * 0.55).clamp(0.0, 240.0);
-        return Column(
-          children: [
-            _Gallery(
-              maxWidth: maxWidth,
-              gap: gap,
+        // The window plus the half of the animation that hangs past its
+        // bottom-right corner fit in the available width (and in the layout
+        // height, so nothing below is overlapped).
+        final unitWidth = constraints.maxWidth.clamp(0.0, 1100.0);
+        final width = unitWidth / (1 + _animationShare / 2);
+        final height = width / (16 / 9);
+        final animationWidth = width * _animationShare;
+        final animationHeight = height * _animationShare;
+        return Center(
+          child: SizedBox(
+            width: width + animationWidth / 2,
+            height: height + animationHeight / 2,
+            child: Stack(
               children: [
-                for (var i = 0; i < desktopCount; i++)
-                  _SlideshowFrame(
-                    assets: _desktopScreenshots[i],
-                    label: '${l.t('home.screenshot_desktop')} ${i + 1}',
-                    width: desktopWidth,
+                Positioned(
+                  left: 0,
+                  top: 0,
+                  child: _SlideshowFrame(
+                    assets: _desktopScreenshots,
+                    label: l.t('home.screenshot_desktop'),
+                    width: width,
                     aspect: 16 / 9,
                     turn: turn,
-                    slot: i,
+                    slot: 0,
                   ),
+                ),
+                // Lets clicks through, so the screenshot underneath still opens.
+                Positioned(
+                  left: width - animationWidth / 2,
+                  top: height - animationHeight / 2,
+                  child: IgnorePointer(
+                    child: DeviceLinkAnimation(width: animationWidth, height: animationHeight),
+                  ),
+                ),
               ],
             ),
-            SizedBox(height: gap),
-            _Gallery(
-              maxWidth: maxWidth,
-              gap: gap,
-              children: [
-                for (var i = 0; i < _mobileScreenshots.length; i++)
-                  _SlideshowFrame(
-                    assets: _mobileScreenshots[i],
-                    label: '${l.t('home.screenshot_mobile')} ${i + 1}',
-                    width: mobileWidth,
-                    aspect: 9 / 16,
-                    turn: turn,
-                    slot: desktopCount + i,
-                  ),
-              ],
-            ),
-          ],
+          ),
         );
       },
-    );
-  }
-}
-
-/// A centered row of frames that scrolls sideways when it doesn't fit.
-class _Gallery extends StatelessWidget {
-  final double maxWidth;
-  final double gap;
-  final List<Widget> children;
-
-  const _Gallery({required this.maxWidth, required this.gap, required this.children});
-
-  @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: ConstrainedBox(
-        constraints: BoxConstraints(minWidth: maxWidth),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            for (var i = 0; i < children.length; i++) ...[if (i > 0) SizedBox(width: gap), children[i]],
-          ],
-        ),
-      ),
     );
   }
 }
@@ -348,6 +321,22 @@ class _SlideshowFrameState extends State<_SlideshowFrame> with SingleTickerProvi
     _crossfadeTo(index);
   }
 
+  /// Swiping the window (a finger on a phone, or a mouse drag) steps to the
+  /// neighbouring image: left → next, right → previous, wrapping around. A
+  /// short quick flick counts too, not only a long slow drag.
+  double _dragDx = 0;
+
+  void _onDragEnd(DragEndDetails details) {
+    final dx = _dragDx;
+    _dragDx = 0;
+    final count = widget.assets.length;
+    if (count < 2) return;
+    final flick = details.primaryVelocity ?? 0;
+    final direction = dx.abs() > 40 ? dx : (flick.abs() > 400 ? flick : 0.0);
+    if (direction == 0) return;
+    _show((_index + (direction < 0 ? 1 : -1) + count) % count);
+  }
+
   Widget _image(int index) => Image.asset(
     widget.assets[index],
     key: ValueKey(index),
@@ -377,10 +366,15 @@ class _SlideshowFrameState extends State<_SlideshowFrame> with SingleTickerProvi
         onTapUp: (_) => setState(() => _pressed = false),
         onTapCancel: () => setState(() => _pressed = false),
         onTap: _openViewer,
+        onHorizontalDragStart: (_) => _dragDx = 0,
+        onHorizontalDragUpdate: (details) => _dragDx += details.delta.dx,
+        onHorizontalDragCancel: () => _dragDx = 0,
+        onHorizontalDragEnd: _onDragEnd,
         child: Semantics(
           button: true,
           label: '${widget.label} (${_index + 1}/$count)',
           child: AnimatedContainer(
+            key: ValueKey('slideshow-${widget.slot}'),
             duration: const Duration(milliseconds: 120),
             width: widget.width,
             height: widget.width / widget.aspect,
@@ -422,6 +416,7 @@ class _SlideshowFrameState extends State<_SlideshowFrame> with SingleTickerProvi
                       _SlideDot(
                         key: ValueKey('slide-dot-$i'),
                         active: i == _index,
+                        compact: widget.width < 140,
                         label: '${widget.label} (${i + 1}/$count)',
                         onTap: () => _show(i),
                       ),
@@ -439,10 +434,11 @@ class _SlideshowFrameState extends State<_SlideshowFrame> with SingleTickerProvi
 /// site-wide hover/press border, just scaled down to dot size.
 class _SlideDot extends StatelessWidget {
   final bool active;
+  final bool compact; // very narrow window (phone on a small screen): smaller dots so five still fit
   final String label;
   final VoidCallback onTap;
 
-  const _SlideDot({super.key, required this.active, required this.label, required this.onTap});
+  const _SlideDot({super.key, required this.active, required this.compact, required this.label, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -450,12 +446,12 @@ class _SlideDot extends StatelessWidget {
       onTap: onTap,
       radius: 8,
       semanticLabel: label,
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 5),
+      padding: EdgeInsets.symmetric(horizontal: compact ? 2 : 4, vertical: compact ? 3 : 5),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
-        width: active ? 18 : 7,
-        height: 7,
+        width: active ? (compact ? 11 : 18) : (compact ? 5 : 7),
+        height: compact ? 5 : 7,
         decoration: BoxDecoration(
           color: active ? AppColors.accentGreen : AppColors.textSecondary.withValues(alpha: 0.7),
           borderRadius: BorderRadius.circular(4),

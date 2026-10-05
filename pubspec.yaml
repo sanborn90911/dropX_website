@@ -25,7 +25,6 @@ flutter:
     - assets/images/
     - assets/i18n/
     - assets/screenshots/desktop/
-    - assets/screenshots/mobile/
 
   # Same family as the dropX app (dropsync_app) — only the upright weights
   # the website actually uses, to keep the web bundle small.

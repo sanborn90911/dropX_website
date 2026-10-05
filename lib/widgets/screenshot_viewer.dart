@@ -40,6 +40,27 @@ class _ScreenshotViewer extends StatefulWidget {
 
 class _ScreenshotViewerState extends State<_ScreenshotViewer> {
   late int _index = widget.initialIndex;
+  final _zoom = TransformationController();
+  double _swipeDx = 0;
+
+  bool get _zoomedIn => _zoom.value.getMaxScaleOnAxis() > 1.05;
+
+  @override
+  void dispose() {
+    _zoom.dispose();
+    super.dispose();
+  }
+
+  // One finger swiping the image at normal size moves to the next/previous
+  // image. Once zoomed in, the same drag pans around the image instead.
+  void _onSwipeEnd(ScaleEndDetails details) {
+    final dx = _swipeDx;
+    _swipeDx = 0;
+    if (_zoomedIn) return;
+    final flick = details.velocity.pixelsPerSecond.dx;
+    final direction = dx.abs() > 50 ? dx : (flick.abs() > 700 ? flick : 0.0);
+    if (direction != 0) _step(direction < 0 ? 1 : -1);
+  }
 
   void _close() => Navigator.of(context).pop(_index);
 
@@ -78,7 +99,14 @@ class _ScreenshotViewerState extends State<_ScreenshotViewer> {
                       borderRadius: BorderRadius.circular(12),
                       // Pinch / scroll to zoom into details.
                       child: InteractiveViewer(
+                        key: const ValueKey('viewer-image'),
+                        transformationController: _zoom,
                         maxScale: 4,
+                        onInteractionStart: (_) => _swipeDx = 0,
+                        onInteractionUpdate: (details) {
+                          if (details.pointerCount == 1 && !_zoomedIn) _swipeDx += details.focalPointDelta.dx;
+                        },
+                        onInteractionEnd: _onSwipeEnd,
                         child: AnimatedSwitcher(
                           duration: const Duration(milliseconds: 250),
                           child: Image.asset(

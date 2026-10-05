@@ -20,6 +20,21 @@ class LocaleController extends ChangeNotifier {
   Future<void> init() async {
     _english = await _load(kDefaultLanguage);
     _current = _english;
+    final detected = _browserLanguage();
+    if (detected != kDefaultLanguage) {
+      _current = await _load(detected);
+      _code = detected;
+    }
+  }
+
+  // First of the visitor's browser languages (in their preference order)
+  // that the site has a translation for; English otherwise.
+  static String _browserLanguage() {
+    for (final locale in WidgetsBinding.instance.platformDispatcher.locales) {
+      final code = locale.languageCode == 'in' ? 'id' : locale.languageCode;
+      if (kLanguages.containsKey(code)) return code;
+    }
+    return kDefaultLanguage;
   }
 
   Future<void> setLanguage(String code) async {
