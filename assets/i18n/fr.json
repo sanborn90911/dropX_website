@@ -26,6 +26,10 @@
   "feature.hotspot.body": "Utilisez votre routeur ou reliez deux appareils directement via un point d'accès.",
   "feature.verified.title": "Transferts vérifiés",
   "feature.verified.body": "Chaque bloc est contrôlé pour que ce qui arrive corresponde à ce qui a été envoyé.",
+  "feature.auth.title": "Authentification des appareils",
+  "feature.auth.body": "Les deux écrans affichent un court code de vérification. S'ils concordent, personne n'écoute entre les deux — et chaque transfert doit d'abord être approuvé par le destinataire.",
+  "feature.chunks.title": "Aucun fragment laissé de côté",
+  "feature.chunks.body": "Chaque fragment est acquitté dès son arrivée et chaque fichier terminé est vérifié : un transfert ne se termine que lorsque chaque octet est comptabilisé.",
 
   "download.title": "Télécharger dropX",
   "download.choose_platform": "Choisissez votre plateforme",

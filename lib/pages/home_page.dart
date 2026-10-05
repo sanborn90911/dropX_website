@@ -12,8 +12,40 @@ import '../widgets/hover_outline.dart';
 import '../widgets/screenshot_viewer.dart';
 import '../widgets/site_scaffold.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  /// The one clock for everything on this page that changes by itself (the
+  /// screenshot windows and the feature boxes). It hands out one turn at a
+  /// time, so no two things ever change at the same moment.
+  final _turn = ValueNotifier<_SlideTurn?>(null);
+  Timer? _timer;
+  int _step = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer(_firstChangeDelay, _nextTurn);
+  }
+
+  void _nextTurn() {
+    final seq = (_turn.value?.seq ?? 0) + 1;
+    _turn.value = (seq: seq, slot: _schedule[_step]);
+    _step = (_step + 1) % _schedule.length;
+    _timer = Timer(_stride, _nextTurn);
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _turn.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +95,7 @@ class HomePage extends StatelessWidget {
             onTap: () => Routes.go(context, Routes.download(detected)),
           ),
           SizedBox(height: wide ? 48 : 32),
-          const _Screenshots(),
+          _Screenshots(turn: _turn),
           SizedBox(height: wide ? 64 : 44),
           Text(
             l.t('home.features_title'),
@@ -78,7 +110,7 @@ class HomePage extends StatelessWidget {
           const SizedBox(height: 20),
           ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: kContentWidth),
-            child: const _FeatureGrid(),
+            child: _FeatureShowcase(turn: _turn),
           ),
           SizedBox(height: wide ? 64 : 40),
         ],
@@ -99,66 +131,41 @@ const List<List<String>> _mobileScreenshots = [
   ['assets/screenshots/mobile/5.png', 'assets/screenshots/mobile/6.png'],
 ];
 
-/// Slideshow pacing. Windows are numbered desktop left/right = 0/1, phone
-/// left/centre/right = 2/3/4. One shared schedule plays them in diagonal
-/// pairs so only one image is ever fading:
+/// Pacing for everything on the page that changes by itself.
 ///
-///   desktop left  → (1s after its fade ends) phone right
-///   desktop right → (1s after its fade ends) phone left
-///   phone centre on its own, then the round repeats.
+/// Slot numbers: screenshot windows are 0–4 (desktop left/right = 0/1, phone
+/// left/centre/right = 2/3/4) and the four feature boxes are 5–8 (top-left,
+/// bottom-left, top-right, bottom-right, see [_featureBoxes]).
 ///
-/// Pairs and the centre turn are separated by a slightly longer rest. One
-/// round takes 15s, so each window changes every 15s.
+/// One shared clock hands out a single turn every [_stride]: a change takes
+/// [_fadeMs] and the next one starts [_gapMs] after it ends, so only one
+/// thing is ever changing and no two changes ever coincide. The order keeps
+/// the diagonal pairing (a window, then the one diagonal to it) for the
+/// screenshots and the feature boxes alike, and alternates between the two:
+///
+///   desktop left → phone right → box top-left → box bottom-right →
+///   desktop right → phone left → box bottom-left → box top-right →
+///   phone centre → (repeat)
+///
+/// A full round is 9 turns × 2.4s = 21.6s, so each window changes every 21.6s
+/// while something on the page changes every 2.4s.
 const int _fadeMs = 1400;
-const int _pairGapMs = 1000; // between a desktop change ending and its diagonal phone change
-const int _restMs = 2000; // between groups
+const int _gapMs = 1000; // between one change ending and the next starting
 const Duration _fadeDuration = Duration(milliseconds: _fadeMs);
+const Duration _stride = Duration(milliseconds: _fadeMs + _gapMs);
 const Curve _fadeCurve = Curves.easeInOutSine;
 const Duration _firstChangeDelay = Duration(seconds: 1); // first pair starts right after the page opens
 
-/// (window, wait since the previous change started).
-const List<({int slot, Duration wait})> _schedule = [
-  (slot: 0, wait: Duration(milliseconds: _fadeMs + _restMs)), // desktop left
-  (slot: 4, wait: Duration(milliseconds: _fadeMs + _pairGapMs)), // phone right
-  (slot: 1, wait: Duration(milliseconds: _fadeMs + _restMs)), // desktop right
-  (slot: 2, wait: Duration(milliseconds: _fadeMs + _pairGapMs)), // phone left
-  (slot: 3, wait: Duration(milliseconds: _fadeMs + _restMs)), // phone centre
-];
+const int _featureSlotBase = 5;
+const List<int> _schedule = [0, 4, 5, 8, 1, 2, 6, 7, 3];
 
 /// The window whose turn it is; `seq` makes repeated turns still notify.
 typedef _SlideTurn = ({int seq, int slot});
 
-class _Screenshots extends StatefulWidget {
-  const _Screenshots();
+class _Screenshots extends StatelessWidget {
+  final ValueListenable<_SlideTurn?> turn;
 
-  @override
-  State<_Screenshots> createState() => _ScreenshotsState();
-}
-
-class _ScreenshotsState extends State<_Screenshots> {
-  final _turn = ValueNotifier<_SlideTurn?>(null);
-  Timer? _timer;
-  int _step = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    _timer = Timer(_firstChangeDelay, _nextTurn);
-  }
-
-  void _nextTurn() {
-    final seq = (_turn.value?.seq ?? 0) + 1;
-    _turn.value = (seq: seq, slot: _schedule[_step].slot);
-    _step = (_step + 1) % _schedule.length;
-    _timer = Timer(_schedule[_step].wait, _nextTurn);
-  }
-
-  @override
-  void dispose() {
-    _timer?.cancel();
-    _turn.dispose();
-    super.dispose();
-  }
+  const _Screenshots({required this.turn});
 
   @override
   Widget build(BuildContext context) {
@@ -184,7 +191,7 @@ class _ScreenshotsState extends State<_Screenshots> {
                     label: '${l.t('home.screenshot_desktop')} ${i + 1}',
                     width: desktopWidth,
                     aspect: 16 / 9,
-                    turn: _turn,
+                    turn: turn,
                     slot: i,
                   ),
               ],
@@ -200,7 +207,7 @@ class _ScreenshotsState extends State<_Screenshots> {
                     label: '${l.t('home.screenshot_mobile')} ${i + 1}',
                     width: mobileWidth,
                     aspect: 9 / 16,
-                    turn: _turn,
+                    turn: turn,
                     slot: desktopCount + i,
                   ),
               ],
@@ -458,76 +465,284 @@ class _SlideDot extends StatelessWidget {
   }
 }
 
-class _FeatureGrid extends StatelessWidget {
-  const _FeatureGrid();
+class _Feature {
+  final IconData icon;
+  final String key; // translation key prefix: `<key>.title` / `<key>.body`
 
-  static const _features = [
-    (Icons.devices, 'feature.cross_platform'),
-    (Icons.wifi_off, 'feature.no_internet'),
-    (Icons.lock_outline, 'feature.private'),
-    (Icons.folder_open, 'feature.any_file'),
-    (Icons.wifi_tethering, 'feature.hotspot'),
-    (Icons.verified_outlined, 'feature.verified'),
-  ];
+  const _Feature(this.icon, this.key);
+}
+
+/// Four boxes with two features each, in layout order: top-left, bottom-left,
+/// top-right, bottom-right. Each box flips between its two features.
+const List<List<_Feature>> _featureBoxes = [
+  [_Feature(Icons.devices, 'feature.cross_platform'), _Feature(Icons.folder_open, 'feature.any_file')],
+  [_Feature(Icons.wifi_off, 'feature.no_internet'), _Feature(Icons.wifi_tethering, 'feature.hotspot')],
+  [_Feature(Icons.lock_outline, 'feature.private'), _Feature(Icons.handshake_outlined, 'feature.auth')],
+  [_Feature(Icons.verified_outlined, 'feature.verified'), _Feature(Icons.extension_outlined, 'feature.chunks')],
+];
+
+/// Two columns of two boxes each (a single column on narrow screens). Row
+/// mates share a height so the grid stays tidy while the text inside changes.
+class _FeatureShowcase extends StatelessWidget {
+  final ValueListenable<_SlideTurn?> turn;
+
+  const _FeatureShowcase({required this.turn});
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        const gap = 16.0;
+        Widget box(int i) => _FeatureBox(index: i, features: _featureBoxes[i], turn: turn, slot: _featureSlotBase + i);
+
+        if (constraints.maxWidth < 640) {
+          return Column(
+            children: [
+              for (var i = 0; i < _featureBoxes.length; i++) ...[if (i > 0) const SizedBox(height: gap), box(i)],
+            ],
+          );
+        }
+        Widget row(int left, int right) => IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(child: box(left)),
+              const SizedBox(width: gap),
+              Expanded(child: box(right)),
+            ],
+          ),
+        );
+        // Left column = boxes 0 and 1, right column = boxes 2 and 3.
+        return Column(
+          children: [
+            row(0, 2),
+            const SizedBox(height: gap),
+            row(1, 3),
+          ],
+        );
+      },
+    );
+  }
+}
+
+/// One feature box. Like a screenshot window it changes only when [turn]
+/// names its [slot], pauses while hovered, and has a selector underneath that
+/// jumps straight to a feature (skipping the box's next turn so it doesn't
+/// change right after a click).
+class _FeatureBox extends StatefulWidget {
+  final int index;
+  final List<_Feature> features;
+  final ValueListenable<_SlideTurn?> turn;
+  final int slot;
+
+  const _FeatureBox({required this.index, required this.features, required this.turn, required this.slot});
+
+  @override
+  State<_FeatureBox> createState() => _FeatureBoxState();
+}
+
+class _FeatureBoxState extends State<_FeatureBox> with SingleTickerProviderStateMixin {
+  int _index = 0;
+  int? _previous; // feature fading out while the current one fades in
+  bool _hovered = false;
+  bool _skipNextTurn = false;
+
+  late final AnimationController _fade = AnimationController(vsync: this, duration: _fadeDuration, value: 1)
+    ..addStatusListener((status) {
+      if (status == AnimationStatus.completed && _previous != null) setState(() => _previous = null);
+    });
+
+  // Two sentences laid over each other read as a smudge, so unlike the
+  // screenshots the old text fades out over the first half of the change and
+  // the new text fades in over the second, with only a sliver of overlap.
+  late final Animation<double> _fadeIn = CurvedAnimation(
+    parent: _fade,
+    curve: const Interval(0.45, 1.0, curve: Curves.easeInOutSine),
+  );
+  late final Animation<double> _fadeOut = ReverseAnimation(
+    CurvedAnimation(
+      parent: _fade,
+      curve: const Interval(0.0, 0.55, curve: Curves.easeInOutSine),
+    ),
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    widget.turn.addListener(_onTurn);
+  }
+
+  @override
+  void didUpdateWidget(_FeatureBox oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.turn != widget.turn) {
+      oldWidget.turn.removeListener(_onTurn);
+      widget.turn.addListener(_onTurn);
+    }
+  }
+
+  @override
+  void dispose() {
+    widget.turn.removeListener(_onTurn);
+    _fade.dispose();
+    super.dispose();
+  }
+
+  void _onTurn() {
+    if (widget.turn.value?.slot != widget.slot) return;
+    if (_skipNextTurn) {
+      _skipNextTurn = false;
+      return;
+    }
+    if (_hovered) return;
+    _changeTo((_index + 1) % widget.features.length);
+  }
+
+  void _changeTo(int index) {
+    if (index == _index) return;
+    setState(() {
+      _previous = _index;
+      _index = index;
+    });
+    _fade.forward(from: 0);
+  }
+
+  void _show(int index) {
+    _skipNextTurn = true;
+    _changeTo(index);
+  }
+
+  Animation<double> _opacityOf(int i) => i == _index
+      ? _fadeIn
+      : i == _previous
+      ? _fadeOut
+      : kAlwaysDismissedAnimation;
 
   @override
   Widget build(BuildContext context) {
     final l = L10n.of(context);
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        const spacing = 16.0;
-        final columns = constraints.maxWidth >= 900 ? 3 : (constraints.maxWidth >= 520 ? 2 : 1);
-        final tileWidth = (constraints.maxWidth - spacing * (columns - 1)) / columns;
-        return Wrap(
-          spacing: spacing,
-          runSpacing: spacing,
+    final features = widget.features;
+    return MouseRegion(
+      onEnter: (_) => _hovered = true,
+      onExit: (_) => _hovered = false,
+      child: Container(
+        key: ValueKey('feature-box-${widget.index}'),
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.border),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            for (final (icon, key) in _features)
-              Container(
-                width: tileWidth,
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.border),
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Icon(icon, color: AppColors.accentCyan, size: 28),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            l.t('$key.title'),
-                            style: const TextStyle(
-                              fontFamily: kFontFamily,
-                              color: AppColors.textPrimary,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            l.t('$key.body'),
-                            style: const TextStyle(
-                              fontFamily: kFontFamily,
-                              color: AppColors.textSecondary,
-                              fontSize: 13,
-                              height: 1.35,
-                            ),
-                          ),
-                        ],
-                      ),
+            // Every feature is laid out (only one is visible), so the box is
+            // always as tall as its tallest text and never jumps.
+            Stack(
+              children: [
+                for (var i = 0; i < features.length; i++)
+                  ExcludeSemantics(
+                    excluding: i != _index,
+                    child: FadeTransition(
+                      key: ValueKey('feature-${widget.index}-item-$i'),
+                      opacity: _opacityOf(i),
+                      child: _FeatureContent(feature: features[i]),
                     ),
-                  ],
+                  ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (var i = 0; i < features.length; i++)
+                  _FeatureDot(
+                    key: ValueKey('feature-dot-${widget.index}-$i'),
+                    active: i == _index,
+                    label: l.t('${features[i].key}.title'),
+                    onTap: () => _show(i),
+                  ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _FeatureContent extends StatelessWidget {
+  final _Feature feature;
+
+  const _FeatureContent({required this.feature});
+
+  @override
+  Widget build(BuildContext context) {
+    final l = L10n.of(context);
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(feature.icon, color: AppColors.accentCyan, size: 28),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                l.t('${feature.key}.title'),
+                style: const TextStyle(
+                  fontFamily: kFontFamily,
+                  color: AppColors.textPrimary,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
-          ],
-        );
-      },
+              const SizedBox(height: 4),
+              Text(
+                l.t('${feature.key}.body'),
+                style: const TextStyle(
+                  fontFamily: kFontFamily,
+                  color: AppColors.textSecondary,
+                  fontSize: 13,
+                  height: 1.35,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Selector for a feature box: deliberately a different, much smaller thing
+/// than the screenshot dots (cyan like the feature icons, 4px, no backing),
+/// but still the site-wide light-on-hover / solid-on-press border.
+class _FeatureDot extends StatelessWidget {
+  final bool active;
+  final String label;
+  final VoidCallback onTap;
+
+  const _FeatureDot({super.key, required this.active, required this.label, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return HoverOutline(
+      onTap: onTap,
+      radius: 6,
+      accent: AppColors.accentCyan,
+      semanticLabel: label,
+      padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 4),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+        width: active ? 10 : 4,
+        height: 4,
+        decoration: BoxDecoration(
+          color: AppColors.accentCyan.withValues(alpha: active ? 1 : 0.35),
+          borderRadius: BorderRadius.circular(2),
+        ),
+      ),
     );
   }
 }

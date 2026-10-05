@@ -26,6 +26,10 @@
   "feature.hotspot.body": "Yönlendiricinizi kullanın ya da iki cihazı erişim noktasıyla doğrudan bağlayın.",
   "feature.verified.title": "Doğrulanmış aktarımlar",
   "feature.verified.body": "Her parça kontrol edilir; ulaşan dosya gönderilenle birebir aynıdır.",
+  "feature.auth.title": "Cihaz Kimlik Doğrulama",
+  "feature.auth.body": "İki ekran da kısa bir doğrulama kodu gösterir. Eşleşiyorsa araya giren kimse yok — ve her aktarım önce alıcının onayını gerektirir.",
+  "feature.chunks.title": "Hiçbir Parça Geride Kalmaz",
+  "feature.chunks.body": "Her parça ulaşır ulaşmaz onaylanır ve biten her dosya doğrulanır; böylece aktarım ancak her bayt hesaba katıldığında tamamlanır.",
 
   "download.title": "dropX'i indir",
   "download.choose_platform": "Platformunuzu seçin",

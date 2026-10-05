@@ -26,6 +26,10 @@
   "feature.hotspot.body": "Dùng bộ định tuyến, hoặc kết nối trực tiếp hai thiết bị qua điểm phát sóng.",
   "feature.verified.title": "Truyền tệp được xác minh",
   "feature.verified.body": "Mỗi phần dữ liệu đều được kiểm tra để tệp nhận được khớp với tệp đã gửi.",
+  "feature.auth.title": "Xác thực thiết bị",
+  "feature.auth.body": "Cả hai màn hình đều hiển thị một mã xác minh ngắn. Nếu khớp, không ai đang nghe lén ở giữa — và mỗi lần truyền đều cần người nhận chấp thuận trước.",
+  "feature.chunks.title": "Không bỏ sót phần nào",
+  "feature.chunks.body": "Mỗi phần được xác nhận ngay khi đến nơi và mỗi tệp hoàn tất đều được kiểm tra, nên quá trình truyền chỉ hoàn tất khi mọi byte đã đủ.",
 
   "download.title": "Tải xuống dropX",
   "download.choose_platform": "Chọn nền tảng của bạn",

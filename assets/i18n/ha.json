@@ -26,6 +26,10 @@
   "feature.hotspot.body": "Yi amfani da rauta, ko haɗa na'urori biyu kai tsaye da hotspot.",
   "feature.verified.title": "Aikawa da aka tabbatar",
   "feature.verified.body": "Ana duba kowane sashe domin abin da ya iso ya yi daidai da abin da aka aika.",
+  "feature.auth.title": "Tabbatar da Na'ura",
+  "feature.auth.body": "Allon biyu suna nuna gajeren lambar tabbatarwa. Idan sun yi daidai, babu wanda ke saurare a tsakiya — kuma kowane aikawa yana buƙatar amincewar mai karɓa tukuna.",
+  "feature.chunks.title": "Babu Sashen da Aka Bari a Baya",
+  "feature.chunks.body": "Ana tabbatar da kowane sashe da zarar ya isa, kuma ana duba kowane fayil da ya kammala, don haka aikawa tana kammaluwa ne kawai idan an tabbatar da kowane byte.",
 
   "download.title": "Sauke dropX",
   "download.choose_platform": "Zaɓi dandamalinka",

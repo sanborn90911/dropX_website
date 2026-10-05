@@ -26,6 +26,10 @@
   "feature.hotspot.body": "Nutze deinen Router oder verbinde zwei Geräte direkt per Hotspot.",
   "feature.verified.title": "Geprüfte Übertragungen",
   "feature.verified.body": "Jeder Block wird geprüft, damit Ankommendes exakt dem Gesendeten entspricht.",
+  "feature.auth.title": "Geräte-Authentifizierung",
+  "feature.auth.body": "Beide Bildschirme zeigen einen kurzen Prüfcode. Stimmen sie überein, hört niemand dazwischen mit — und jede Übertragung braucht zuerst die Zustimmung des Empfängers.",
+  "feature.chunks.title": "Kein Datenblock bleibt zurück",
+  "feature.chunks.body": "Jeder Block wird bestätigt, sobald er ankommt, und jede fertige Datei wird geprüft – eine Übertragung ist erst abgeschlossen, wenn jedes einzelne Byte erfasst ist.",
 
   "download.title": "dropX herunterladen",
   "download.choose_platform": "Wähle deine Plattform",

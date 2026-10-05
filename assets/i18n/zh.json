@@ -26,6 +26,10 @@
   "feature.hotspot.body": "使用路由器，或通过热点直接连接两台设备。",
   "feature.verified.title": "传输校验",
   "feature.verified.body": "每个数据块都经过完整性校验，确保收到的内容与发送的一致。",
+  "feature.auth.title": "对等设备认证",
+  "feature.auth.body": "两台设备的屏幕上都会显示一个简短的验证码。如果一致，说明中间没有人窃听——而且每次传输都必须先经接收方同意。",
+  "feature.chunks.title": "不落下任何数据块",
+  "feature.chunks.body": "每个数据块一到达就会被确认，每个完成的文件都会经过校验，因此只有当每一个字节都核对无误时，传输才算完成。",
 
   "download.title": "下载 dropX",
   "download.choose_platform": "选择您的平台",

@@ -26,6 +26,10 @@
   "feature.hotspot.body": "Usa tu router o conecta dos dispositivos directamente con un punto de acceso.",
   "feature.verified.title": "Transferencias verificadas",
   "feature.verified.body": "Cada fragmento se verifica para que lo recibido coincida con lo enviado.",
+  "feature.auth.title": "Autenticación entre dispositivos",
+  "feature.auth.body": "Ambas pantallas muestran un breve código de verificación. Si coinciden, nadie escucha en medio, y cada transferencia necesita primero la aprobación del receptor.",
+  "feature.chunks.title": "Ningún fragmento se queda atrás",
+  "feature.chunks.body": "Cada fragmento se confirma en cuanto llega y cada archivo terminado se verifica, así una transferencia solo se completa cuando cada byte está contabilizado.",
 
   "download.title": "Descargar dropX",
   "download.choose_platform": "Elige tu plataforma",

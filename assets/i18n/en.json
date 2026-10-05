@@ -26,6 +26,10 @@
   "feature.hotspot.body": "Use your router, or connect two devices directly with a hotspot.",
   "feature.verified.title": "Verified Transfers",
   "feature.verified.body": "Every chunk is integrity-checked so what arrives matches what was sent.",
+  "feature.auth.title": "Peer Authentication",
+  "feature.auth.body": "Both screens show a short verification code. If they match, nobody is listening in between — and every transfer needs the receiver's approval first.",
+  "feature.chunks.title": "No Chunk Left Behind",
+  "feature.chunks.body": "Every chunk is acknowledged the moment it lands, and each finished file is verified, so a transfer only completes when every last byte is accounted for.",
 
   "download.title": "Download dropX",
   "download.choose_platform": "Choose your platform",

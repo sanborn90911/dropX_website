@@ -26,6 +26,10 @@
   "feature.hotspot.body": "ルーターを使うか、ホットスポットで 2 台を直接接続できます。",
   "feature.verified.title": "検証済みの転送",
   "feature.verified.body": "各チャンクの整合性を確認し、送信した内容と同じものが届きます。",
+  "feature.auth.title": "ピア認証",
+  "feature.auth.body": "両方の画面に短い確認コードが表示されます。一致していれば、途中で盗聴している人はいません。また、すべての転送は受信側の承認が先に必要です。",
+  "feature.chunks.title": "取りこぼしゼロ",
+  "feature.chunks.body": "各チャンクは届いた瞬間に確認応答され、完成した各ファイルは検証されます。すべてのバイトが揃うまで転送は完了しません。",
 
   "download.title": "dropX をダウンロード",
   "download.choose_platform": "プラットフォームを選択",

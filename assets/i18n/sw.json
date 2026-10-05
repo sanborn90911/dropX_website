@@ -26,6 +26,10 @@
   "feature.hotspot.body": "Tumia ruta yako, au unganisha vifaa viwili moja kwa moja kwa hotspot.",
   "feature.verified.title": "Uhamishaji uliothibitishwa",
   "feature.verified.body": "Kila sehemu hukaguliwa ili kinachowasili kilingane na kilichotumwa.",
+  "feature.auth.title": "Uthibitisho wa Vifaa",
+  "feature.auth.body": "Skrini zote mbili zinaonyesha msimbo mfupi wa uthibitisho. Ukilingana, hakuna anayesikiliza katikati — na kila uhamishaji unahitaji idhini ya mpokeaji kwanza.",
+  "feature.chunks.title": "Hakuna Kipande Kinachoachwa",
+  "feature.chunks.body": "Kila kipande kinathibitishwa mara kinapofika na kila faili iliyokamilika hukaguliwa, kwa hiyo uhamishaji unakamilika tu kila baiti ikiwa imehesabiwa.",
 
   "download.title": "Pakua dropX",
   "download.choose_platform": "Chagua mfumo wako",

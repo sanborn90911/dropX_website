@@ -26,6 +26,10 @@
   "feature.hotspot.body": "Gunakan router Anda, atau hubungkan dua perangkat langsung lewat hotspot.",
   "feature.verified.title": "Transfer Terverifikasi",
   "feature.verified.body": "Setiap bagian diperiksa agar yang diterima sama persis dengan yang dikirim.",
+  "feature.auth.title": "Autentikasi Perangkat",
+  "feature.auth.body": "Kedua layar menampilkan kode verifikasi singkat. Jika cocok, tidak ada yang menyadap di tengah — dan setiap transfer perlu persetujuan penerima terlebih dahulu.",
+  "feature.chunks.title": "Tak Ada Potongan yang Tertinggal",
+  "feature.chunks.body": "Setiap potongan dikonfirmasi begitu tiba dan setiap file yang selesai diverifikasi, jadi transfer baru selesai ketika setiap byte sudah terhitung.",
 
   "download.title": "Unduh dropX",
   "download.choose_platform": "Pilih platform Anda",

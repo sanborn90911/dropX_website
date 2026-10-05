@@ -28,8 +28,7 @@ class Routes {
   /// site is hosted under a sub-path.
   static Uri legalUri(String section) => Uri.base.resolve('legal.html#$section');
 
-  static Future<void> openLegal(String section) =>
-      launchUrl(legalUri(section), webOnlyWindowName: '_self');
+  static Future<void> openLegal(String section) => launchUrl(legalUri(section), webOnlyWindowName: '_self');
 
   static Route<void> onGenerateRoute(RouteSettings settings) {
     final segments = Uri.parse(settings.name ?? home).pathSegments;
