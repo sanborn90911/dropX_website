@@ -1,3 +1,4 @@
+import 'package:dropx_website/data/platforms.dart';
 import 'package:dropx_website/l10n/l10n.dart';
 import 'package:dropx_website/main.dart';
 import 'package:dropx_website/widgets/device_link_animation.dart';
@@ -58,6 +59,45 @@ void main() {
     expect(find.text('Download dropX'), findsOneWidget);
     // flutter_test reports Android as the host platform, so it's auto-selected.
     expect(find.text('Under testing - Coming soon'), findsOneWidget);
+  });
+
+  testWidgets('macOS shows "Under testing - Coming soon" with no installers; Windows lists its two files', (
+    tester,
+  ) async {
+    await _pumpSite(tester, const Size(1600, 900));
+    await tester.tap(find.textContaining('Download for'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('macOS').last);
+    await tester.pumpAndSettle();
+    expect(find.text('Under testing - Coming soon'), findsOneWidget);
+    expect(find.text('Installer Files'), findsNothing);
+    expect(find.text('dropX.dmg'), findsNothing);
+
+    await tester.tap(find.text('Windows').last);
+    await tester.pumpAndSettle();
+    expect(find.text('Installer Files'), findsOneWidget);
+    expect(find.text('dropX-Setup-x64.exe'), findsOneWidget);
+    expect(find.text('dropX-Portable-x64.exe'), findsOneWidget);
+    expect(find.textContaining('32'), findsNothing); // no 32-bit build is offered
+
+    // The links point at files the site really ships.
+    for (final f in kInstallers[DeviceOs.windows]!) {
+      expect(f.published, isTrue);
+      expect(f.uri.path, '/downloads/${f.fileName}');
+    }
+  });
+
+  testWidgets('Linux lists the three x64 formats, all published', (tester) async {
+    await _pumpSite(tester, const Size(1600, 1200));
+    await tester.tap(find.textContaining('Download for'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Linux').last);
+    await tester.pumpAndSettle();
+    for (final name in ['dropX-linux-x64.tar.gz', 'dropx_amd64.deb', 'dropX-x86_64.AppImage']) {
+      expect(find.text(name), findsOneWidget, reason: name);
+    }
+    expect(kInstallers[DeviceOs.linux]!.length, 3);
+    expect(kInstallers[DeviceOs.linux]!.every((f) => f.published), isTrue);
   });
 
   testWidgets('download page lists platforms in order and labels commands per OS', (tester) async {

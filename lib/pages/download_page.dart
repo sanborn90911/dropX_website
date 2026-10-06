@@ -43,7 +43,7 @@ class _DownloadPageState extends State<DownloadPage> {
 
     // Right-hand side: the selected platform's contents.
     final Widget content;
-    if (_os.isMobile) {
+    if (_os.showsComingSoon) {
       content = _ComingSoon(os: _os);
     } else if (wide) {
       content = IntrinsicHeight(
@@ -204,12 +204,11 @@ class _InstallerTile extends StatelessWidget {
   const _InstallerTile({required this.file});
 
   Future<void> _download(BuildContext context) async {
-    final url = file.url;
-    if (url == null) {
+    if (!file.published) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(L10n.of(context).t('download.not_available'))));
       return;
     }
-    await launchUrl(Uri.parse(url));
+    await launchUrl(file.uri);
   }
 
   @override

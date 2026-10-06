@@ -18,6 +18,9 @@ enum DeviceOs {
 
   bool get isMobile => this == android || this == ios;
 
+  /// Platforms with no download yet: the page shows "Under testing - Coming soon".
+  bool get showsComingSoon => isMobile || this == macos;
+
   static DeviceOs? fromSlug(String? slug) {
     for (final os in values) {
       if (os.slug == slug) return os;
@@ -49,21 +52,24 @@ class InstallerFile {
   final String fileName;
   final String descriptionKey;
 
-  /// Direct download URL. `null` until the build is published.
-  final String? url;
+  /// Whether the file is on the site (in `web/downloads/`) yet. Unpublished
+  /// files show "not available yet" instead of downloading.
+  final bool published;
 
-  const InstallerFile(this.fileName, this.descriptionKey, {this.url});
+  const InstallerFile(this.fileName, this.descriptionKey, {this.published = false});
+
+  /// Where the file is served from, whatever page the visitor is on.
+  Uri get uri => Uri.base.resolve('/downloads/$fileName');
 }
 
 const Map<DeviceOs, List<InstallerFile>> kInstallers = {
   DeviceOs.windows: [
-    InstallerFile('dropX-Setup-x64.exe', 'download.win_exe'),
-    InstallerFile('dropX-Portable-x64.exe', 'download.win_portable'),
+    InstallerFile('dropX-Setup-x64.exe', 'download.win_exe', published: true),
+    InstallerFile('dropX-Portable-x64.exe', 'download.win_portable', published: true),
   ],
-  DeviceOs.macos: [InstallerFile('dropX.dmg', 'download.mac_dmg')],
   DeviceOs.linux: [
-    InstallerFile('dropX-linux-x64.tar.gz', 'download.linux_targz'),
-    InstallerFile('dropx_amd64.deb', 'download.linux_deb'),
-    InstallerFile('dropX-x86_64.AppImage', 'download.linux_appimage'),
+    InstallerFile('dropX-linux-x64.tar.gz', 'download.linux_targz', published: true),
+    InstallerFile('dropx_amd64.deb', 'download.linux_deb', published: true),
+    InstallerFile('dropX-x86_64.AppImage', 'download.linux_appimage', published: true),
   ],
 };
