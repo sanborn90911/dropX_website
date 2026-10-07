@@ -34,8 +34,6 @@ jobs:
       - name: Add 404 fallback
         run: cp build/web/index.html build/web/404.html
 
-      - uses: actions/configure-pages@v5
-
       - uses: actions/upload-pages-artifact@v3
         with:
           path: build/web
