@@ -28,7 +28,7 @@ jobs:
       - run: flutter pub get
 
       - name: Build web
-        run: flutter build web --release --base-href "/${{ github.event.repository.name }}/"
+        run: flutter build web --release --base-href "/"
 
       # Make deep links work on GitHub Pages (SPA fallback)
       - name: Add 404 fallback
