@@ -43,7 +43,7 @@ class _DownloadPageState extends State<DownloadPage> {
 
     // Right-hand side: the selected platform's contents.
     final Widget content;
-    if (_os.showsComingSoon) {
+    if (_os.showsStatus) {
       content = _ComingSoon(os: _os);
     } else if (wide) {
       content = IntrinsicHeight(
@@ -269,7 +269,7 @@ class _ComingSoon extends StatelessWidget {
           Icon(os.icon, size: 40, color: AppColors.warning),
           const SizedBox(height: 14),
           Text(
-            L10n.of(context).t('download.coming_soon'),
+            L10n.of(context).t(os.statusKey),
             textAlign: TextAlign.center,
             style: const TextStyle(
               fontFamily: kFontFamily,

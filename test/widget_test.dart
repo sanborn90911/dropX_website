@@ -58,7 +58,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Download dropX'), findsOneWidget);
     // flutter_test reports Android as the host platform, so it's auto-selected.
-    expect(find.text('Under testing - Coming soon'), findsOneWidget);
+    expect(find.text('Closed Beta testing in progress on Google Play'), findsOneWidget);
   });
 
   testWidgets('macOS shows "Under testing - Coming soon" with no installers; Windows lists its two files', (
@@ -69,9 +69,17 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('macOS').last);
     await tester.pumpAndSettle();
-    expect(find.text('Under testing - Coming soon'), findsOneWidget);
+    expect(find.text('Under testing and notarization — Coming Soon'), findsOneWidget);
     expect(find.text('Installer Files'), findsNothing);
     expect(find.text('dropX.dmg'), findsNothing);
+
+    await tester.tap(find.text('iOS').last);
+    await tester.pumpAndSettle();
+    expect(find.text('In active development — Coming Soon'), findsOneWidget);
+
+    await tester.tap(find.text('Android').last);
+    await tester.pumpAndSettle();
+    expect(find.text('Closed Beta testing in progress on Google Play'), findsOneWidget);
 
     await tester.tap(find.text('Windows').last);
     await tester.pumpAndSettle();
@@ -80,10 +88,10 @@ void main() {
     expect(find.text('dropX-Portable-x64.exe'), findsOneWidget);
     expect(find.textContaining('32'), findsNothing); // no 32-bit build is offered
 
-    // The links point at files the site really ships.
-    for (final f in kInstallers[DeviceOs.windows]!) {
+    // Every link goes to the newest GitHub release's file of the same name.
+    for (final f in [...kInstallers[DeviceOs.windows]!, ...kInstallers[DeviceOs.linux]!]) {
       expect(f.published, isTrue);
-      expect(f.uri.path, '/downloads/${f.fileName}');
+      expect(f.uri.toString(), 'https://github.com/sanborn90911/dropX_website/releases/latest/download/${f.fileName}');
     }
   });
 

@@ -18,8 +18,10 @@ enum DeviceOs {
 
   bool get isMobile => this == android || this == ios;
 
-  /// Platforms with no download yet: the page shows "Under testing - Coming soon".
-  bool get showsComingSoon => isMobile || this == macos;
+  /// Platforms with no download: the page shows [statusKey]'s message instead.
+  bool get showsStatus => isMobile || this == macos;
+
+  String get statusKey => 'download.status_$slug';
 
   static DeviceOs? fromSlug(String? slug) {
     for (final os in values) {
@@ -48,18 +50,22 @@ enum DeviceOs {
   }
 }
 
+/// `releases/latest/download/<file>` always points at the newest release.
+const String kReleaseDownloadBase = 'https://github.com/sanborn90911/dropX_website/releases/latest/download';
+
 class InstallerFile {
   final String fileName;
   final String descriptionKey;
 
-  /// Whether the file is on the site (in `web/downloads/`) yet. Unpublished
+  /// Whether the file is attached to a release yet. Unpublished
   /// files show "not available yet" instead of downloading.
   final bool published;
 
   const InstallerFile(this.fileName, this.descriptionKey, {this.published = false});
 
-  /// Where the file is served from, whatever page the visitor is on.
-  Uri get uri => Uri.base.resolve('/downloads/$fileName');
+  /// The file attached to the newest GitHub release. Keep the file names
+  /// identical from one release to the next so this link never changes.
+  Uri get uri => Uri.parse('$kReleaseDownloadBase/$fileName');
 }
 
 const Map<DeviceOs, List<InstallerFile>> kInstallers = {
