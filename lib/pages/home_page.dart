@@ -157,7 +157,7 @@ const int _gapMs = 1000; // between one change ending and the next starting
 const Duration _fadeDuration = Duration(milliseconds: _fadeMs);
 const Duration _stride = Duration(milliseconds: _fadeMs + _gapMs);
 const Curve _fadeCurve = Curves.easeInOutSine;
-const Duration _firstChangeDelay = Duration(seconds: 1); // first pair starts right after the page opens
+const Duration _firstChangeDelay = Duration(milliseconds: 2500); // first screenshot stays up this long after the page opens
 
 const int _featureSlotBase = 1;
 const List<int> _schedule = [0, 1, 4, 2, 3];

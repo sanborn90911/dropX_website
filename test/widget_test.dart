@@ -164,31 +164,34 @@ void main() {
     expect(find.byIcon(Icons.chevron_left), findsNothing); // dots are the only control
     expect([for (var b = 0; b < 4; b++) featureShown(b)], [0, 0, 0, 0]);
 
-    // A turn every 2.4s from 1.0s: screenshot, box 0, box 3, box 1, box 2,
-    // then the screenshot again. Each is checked after its 1.4s fade, with
-    // the not-yet-started ones still untouched.
-    await at(2500); // turn 1 (1.0s) finished: screenshot 1 → 2
+    // The first screenshot stays up for 2.5s, then a turn every 2.4s:
+    // screenshot, box 0, box 3, box 1, box 2, then the screenshot again. Each
+    // is checked after its 1.4s fade, with the not-yet-started ones untouched.
+    await at(2400); // still the first screenshot
+    expect(showing('assets/screenshots/desktop/5.png'), isTrue, reason: 'first screenshot waits until 2.5s');
+
+    await at(4000); // turn 1 (2.5s) finished: screenshot 1 → 2
     expect(showing('assets/screenshots/desktop/5.png'), isFalse);
     expect(showing('assets/screenshots/desktop/1.png'), isTrue);
-    expect(featureShown(0), 0, reason: 'box 0 waits until 3.4s');
+    expect(featureShown(0), 0, reason: 'box 0 waits until 4.9s');
 
-    await at(4900); // turn 2 (3.4s): box 0 flips, its diagonal box 3 hasn't
+    await at(6400); // turn 2 (4.9s): box 0 flips, its diagonal box 3 hasn't
     expect(featureShown(0), 1);
-    expect(featureShown(3), 0, reason: 'box 3 waits until 5.8s');
+    expect(featureShown(3), 0, reason: 'box 3 waits until 7.3s');
 
-    await at(7300); // turn 3 (5.8s): box 3 flips
+    await at(8800); // turn 3 (7.3s): box 3 flips
     expect(featureShown(3), 1);
-    expect(featureShown(1), 0, reason: 'box 1 waits until 8.2s');
+    expect(featureShown(1), 0, reason: 'box 1 waits until 9.7s');
 
-    await at(9700); // turn 4 (8.2s): box 1 flips
+    await at(11200); // turn 4 (9.7s): box 1 flips
     expect(featureShown(1), 1);
-    expect(featureShown(2), 0, reason: 'box 2 waits until 10.6s');
+    expect(featureShown(2), 0, reason: 'box 2 waits until 12.1s');
 
-    await at(12100); // turn 5 (10.6s): box 2 flips
+    await at(13600); // turn 5 (12.1s): box 2 flips
     expect(featureShown(2), 1);
-    expect(showing('assets/screenshots/desktop/2.png'), isFalse, reason: 'screenshot waits until 13.0s');
+    expect(showing('assets/screenshots/desktop/2.png'), isFalse, reason: 'screenshot waits until 14.5s');
 
-    await at(14500); // turn 6 (13.0s): the round starts over, screenshot 2 → 3
+    await at(16000); // turn 6 (14.5s): the round starts over, screenshot 2 → 3
     expect(showing('assets/screenshots/desktop/2.png'), isTrue);
   });
 
