@@ -120,13 +120,14 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-/// The store images (1–5 in slide order), shown in the one desktop window.
+/// The gallery images. The "flawless delivery" slide (5) leads, so it is what
+/// loads first. Each image carries its own title and subtitle.
 const List<String> _desktopScreenshots = [
+  'assets/screenshots/desktop/5.png',
   'assets/screenshots/desktop/1.png',
   'assets/screenshots/desktop/2.png',
   'assets/screenshots/desktop/3.png',
   'assets/screenshots/desktop/4.png',
-  'assets/screenshots/desktop/5.png',
 ];
 
 /// The looping device animation's width and height, as a share of the desktop

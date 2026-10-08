@@ -168,8 +168,8 @@ void main() {
     // then the screenshot again. Each is checked after its 1.4s fade, with
     // the not-yet-started ones still untouched.
     await at(2500); // turn 1 (1.0s) finished: screenshot 1 → 2
-    expect(showing('assets/screenshots/desktop/1.png'), isFalse);
-    expect(showing('assets/screenshots/desktop/2.png'), isTrue);
+    expect(showing('assets/screenshots/desktop/5.png'), isFalse);
+    expect(showing('assets/screenshots/desktop/1.png'), isTrue);
     expect(featureShown(0), 0, reason: 'box 0 waits until 3.4s');
 
     await at(4900); // turn 2 (3.4s): box 0 flips, its diagonal box 3 hasn't
@@ -186,10 +186,10 @@ void main() {
 
     await at(12100); // turn 5 (10.6s): box 2 flips
     expect(featureShown(2), 1);
-    expect(showing('assets/screenshots/desktop/3.png'), isFalse, reason: 'screenshot waits until 13.0s');
+    expect(showing('assets/screenshots/desktop/2.png'), isFalse, reason: 'screenshot waits until 13.0s');
 
     await at(14500); // turn 6 (13.0s): the round starts over, screenshot 2 → 3
-    expect(showing('assets/screenshots/desktop/3.png'), isTrue);
+    expect(showing('assets/screenshots/desktop/2.png'), isTrue);
   });
 
   testWidgets('one window with a small looping device animation in its bottom-right corner', (tester) async {
@@ -203,7 +203,7 @@ void main() {
     );
 
     final window = tester.getRect(
-      find.byWidgetPredicate((w) => w is Image && (w.image as AssetImage).assetName.endsWith('desktop/1.png')),
+      find.byWidgetPredicate((w) => w is Image && (w.image as AssetImage).assetName.endsWith('desktop/5.png')),
     );
     final animation = tester.getRect(find.byType(DeviceLinkAnimation));
     // 25% smaller than before: 0.21 of the window's width and height.
@@ -297,14 +297,14 @@ void main() {
     );
 
     // Open desktop window 1 before its first scheduled change.
-    await tester.tap(image('assets/screenshots/desktop/1.png').first);
+    await tester.tap(image('assets/screenshots/desktop/5.png').first);
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
     expect(find.byKey(const ValueKey('viewer-close')), findsOneWidget);
 
     // Its turn (1s) passes while the viewer is open: the window must not change underneath.
     await tester.pump(const Duration(milliseconds: 1500));
-    expect(image('assets/screenshots/desktop/1.png'), findsNWidgets(2)); // viewer + window
+    expect(image('assets/screenshots/desktop/5.png'), findsNWidgets(2)); // viewer + window
 
     // Switch to the second image inside the viewer, then close with the ✕.
     await tester.tap(find.byKey(const ValueKey('viewer-dot-1')));
@@ -316,8 +316,8 @@ void main() {
 
     // The window now shows the image the visitor ended on.
     await tester.pump(const Duration(milliseconds: 1500));
-    expect(image('assets/screenshots/desktop/1.png'), findsNothing);
-    expect(image('assets/screenshots/desktop/2.png'), findsOneWidget);
+    expect(image('assets/screenshots/desktop/5.png'), findsNothing);
+    expect(image('assets/screenshots/desktop/1.png'), findsOneWidget);
   });
 
   testWidgets('swiping a screenshot window changes its image (left = next, right = previous, wraps)', (tester) async {
@@ -335,14 +335,14 @@ void main() {
       await tester.pump();
     }
 
-    expect(showing('assets/screenshots/desktop/1.png'), isTrue);
-    await swipe(const Offset(-120, 0)); // swipe left → next
-    expect(showing('assets/screenshots/desktop/2.png'), isTrue);
-    expect(showing('assets/screenshots/desktop/1.png'), isFalse);
-    await swipe(const Offset(120, 0)); // swipe right → back
-    expect(showing('assets/screenshots/desktop/1.png'), isTrue);
-    await swipe(const Offset(120, 0)); // swipe right again → wraps to the last image
     expect(showing('assets/screenshots/desktop/5.png'), isTrue);
+    await swipe(const Offset(-120, 0)); // swipe left → next
+    expect(showing('assets/screenshots/desktop/1.png'), isTrue);
+    expect(showing('assets/screenshots/desktop/5.png'), isFalse);
+    await swipe(const Offset(120, 0)); // swipe right → back
+    expect(showing('assets/screenshots/desktop/5.png'), isTrue);
+    await swipe(const Offset(120, 0)); // swipe right again → wraps to the last image
+    expect(showing('assets/screenshots/desktop/4.png'), isTrue);
     expect(find.byKey(const ValueKey('viewer-close')), findsNothing, reason: 'a swipe must not open the viewer');
   });
 
@@ -356,17 +356,17 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
     expect(find.byKey(const ValueKey('viewer-close')), findsOneWidget);
-    expect(image('assets/screenshots/desktop/2.png'), findsNothing);
+    expect(image('assets/screenshots/desktop/1.png'), findsNothing);
 
     await tester.drag(find.byKey(const ValueKey('viewer-image')), const Offset(-150, 0));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));
-    expect(image('assets/screenshots/desktop/2.png'), findsOneWidget); // the viewer moved on to image 2
+    expect(image('assets/screenshots/desktop/1.png'), findsOneWidget); // the viewer moved on to image 2
 
     await tester.drag(find.byKey(const ValueKey('viewer-image')), const Offset(150, 0));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));
-    expect(image('assets/screenshots/desktop/2.png'), findsNothing); // and back to image 1
+    expect(image('assets/screenshots/desktop/1.png'), findsNothing); // and back to image 1
     expect(find.byKey(const ValueKey('viewer-close')), findsOneWidget, reason: 'swiping must not close the viewer');
   });
 }
